@@ -85,26 +85,3 @@ class ShaderDef(object):
         self._vert_shader = self._vert_shader.replace('vert_shader', 'main')
         # TODO: declare uniforms et al
         return self._vert_shader
-
-
-####
-
-
-
-def checker():
-    defmat = DefaultMaterial()
-    vert_ast = find_method_ast(DefaultMaterial, 'vert_shader')
-    frag_ast = find_method_ast(DefaultMaterial, 'frag_shader')
-
-    frag_deps = find_deps(frag_ast)
-    vert_deps = find_deps(vert_ast)
-
-    # TODO
-    update_previous_stage_for_deps(vert_ast, vert_deps, frag_deps)
-
-    # TODO: variable renaming
-
-    py_to_glsl(vert_ast)
-    #py_to_glsl(frag_ast)
-
-#checker()
