@@ -5,9 +5,9 @@ from shaderdef.ast_util import (find_deps, find_method_ast,
                                 make_self_attr_load,
                                 make_self_attr_store,
                                 py_to_glsl,
-                                rename_attributes,
-                                unselfify)
+                                rename_attributes)
 from shaderdef.glsl_types import Attribute, FragOutput, Uniform
+from shaderdef.unselfify import unselfify
 
 
 def make_prefix(name):

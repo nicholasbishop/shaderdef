@@ -170,18 +170,6 @@ def rename_attributes(root, load_names, store_names):
     return AttrRename(load_names, store_names).visit(root)
 
 
-class UnselfifyTransformer(ast.NodeTransformer):
-    # pylint: disable=invalid-name
-    def visit_Attribute(self, node):
-        # pylint: disable=no-self-use
-        if node.value.id == 'self':
-            return ast.Name(id=node.attr, ctx=ast.Load())
-
-
-def unselfify(node):
-    return UnselfifyTransformer().visit(node)
-
-
 def make_assign(dst, src):
     return ast.Assign(targets=[dst], value=src)
 
