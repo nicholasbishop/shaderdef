@@ -10,6 +10,11 @@ from shaderdef.ast_util import (find_deps, find_method_ast,
 from shaderdef.glsl_types import Attribute, FragOutput, Uniform
 
 
+def make_prefix(name):
+    parts = name.split('_')
+    return ''.join(part[0] for part in parts) + '_'
+
+
 class Links(object):
     def __init__(self):
         self.attributes = OrderedDict()
@@ -21,6 +26,8 @@ class Stage(object):
     def __init__(self, obj, func_name):
         self.name = func_name
         self.ast_root = find_method_ast(obj, func_name)
+        self.input_prefix = ''
+        self.output_prefix = make_prefix(self.name)
 
     def find_deps(self):
         return find_deps(self.ast_root)
@@ -41,36 +48,33 @@ class Stage(object):
             if unif is not None:
                 yield link, unif
 
-    # TODO(nicholasbishop): don't prefix function calls
-    def load_names(self, external_links, prefix):
+    def load_names(self, external_links):
         names = {}
         for link in self.find_deps().inputs:
-            unif = external_links.uniforms.get(link)
-            # Don't prefix uniforms
-            if unif is None:
-                names[link] = prefix + link
+            if link not in external_links.uniforms:
+                names[link] = self.input_prefix + link
         return names
 
     # TODO(nicholasbishop): don't prefix builtins like gl_Position
     # TODO(nicholasbishop): de-dup
-    def store_names(self, external_links, prefix):
+    def store_names(self, external_links):
         names = {}
         for link in self.find_deps().outputs:
             unif = external_links.uniforms.get(link)
-            # Don't prefix uniforms
-            if unif is None:
-                names[link] = prefix + link
+            # Don't prefix uniforms or external outputs
+            if (link not in external_links.uniforms and
+                link not in external_links.frag_outputs):
+                names[link] = self.output_prefix + link
         return names
 
     def to_glsl(self, external_links):
         lines = []
         for link, unif in self.required_uniforms(external_links.uniforms):
             lines.append(unif.glsl_decl(link))
-        # TODO(nicholasbishop): fix prefixen
         ast_root = rename_attributes(
             self.ast_root,
-            load_names=self.load_names(external_links, 'in_'),
-            store_names=self.store_names(external_links, 'vs_'))
+            load_names=self.load_names(external_links),
+            store_names=self.store_names(external_links))
         ast_root = unselfify(ast_root)
         lines += py_to_glsl(ast_root)
         return '\n'.join(lines)
@@ -105,6 +109,7 @@ class ShaderDef(object):
         iter2 = reversed(self._stages)
         next(iter2)
         for stage, prev_stage in zip(iter1, iter2):
+            stage.input_prefix = make_prefix(prev_stage.name)
             prev_stage.provide_deps(stage)
 
     def translate(self):
