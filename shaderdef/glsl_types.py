@@ -16,8 +16,22 @@ class Uniform(object):
         return 'uniform {} {};'.format(self.gtype.__name__, name)
 
 
-class mat4: pass
-class vec2: pass
-class vec3: pass
-class vec4: pass
-class void: pass
+class BuiltinType(object):
+    pass
+
+
+# pylint: disable=invalid-name
+class mat2(BuiltinType):
+    pass
+class mat3(BuiltinType):
+    pass
+class mat4(BuiltinType):
+    pass
+class vec2(BuiltinType):
+    pass
+class vec3(BuiltinType):
+    pass
+class vec4(BuiltinType):
+    pass
+class void(BuiltinType):
+    pass

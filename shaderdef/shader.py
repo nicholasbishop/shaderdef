@@ -101,7 +101,6 @@ class ShaderDef(object):
                 self._external_links.uniforms[key] = val
 
     def _thread_deps(self):
-        prev_deps = None
         iter1 = reversed(self._stages)
         iter2 = reversed(self._stages)
         next(iter2)

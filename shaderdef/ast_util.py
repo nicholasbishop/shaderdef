@@ -1,7 +1,5 @@
 import ast
-from contextlib import contextmanager
 from inspect import getsource
-
 
 class Code(object):
     def __init__(self, initial_line=None):
@@ -24,6 +22,7 @@ class Code(object):
 
 
 class AstToGlsl(ast.NodeVisitor):
+    # pylint: disable=invalid-name
     def visit_Module(self, node):
         if len(node.body) != 1:
             raise NotImplementedError()
@@ -50,6 +49,7 @@ class AstToGlsl(ast.NodeVisitor):
         return Code('{} {}'.format(gtype, node.arg))
 
     def visit_Name(self, node):
+        # pylint: disable=no-self-use
         return Code(node.id)
 
     def visit_Attribute(self, node):
@@ -63,6 +63,7 @@ class AstToGlsl(ast.NodeVisitor):
                                       self.visit(node.value).one()))
 
     def visit_Num(self, node):
+        # pylint: disable=no-self-use
         return Code(str(node.n))
 
     def visit_Call(self, node):
@@ -78,6 +79,7 @@ class AstToGlsl(ast.NodeVisitor):
 
 
 class FindMethodVisitor(ast.NodeVisitor):
+    # pylint: disable=invalid-name
     def __init__(self, method):
         super(FindMethodVisitor, self).__init__()
         self._method = method
@@ -100,6 +102,7 @@ class FindMethodVisitor(ast.NodeVisitor):
 
 
 class FindDepsVisitor(ast.NodeVisitor):
+    # pylint: disable=invalid-name
     def __init__(self):
         super(FindDepsVisitor, self).__init__()
         self.inputs = []
@@ -136,6 +139,7 @@ def py_to_glsl(node):
 
 
 class AttrRename(ast.NodeTransformer):
+    # pylint: disable=invalid-name
     def __init__(self, load_names, store_names):
         self._load_names = load_names
         self._store_names = store_names
@@ -167,7 +171,9 @@ def rename_attributes(root, load_names, store_names):
 
 
 class UnselfifyTransformer(ast.NodeTransformer):
+    # pylint: disable=invalid-name
     def visit_Attribute(self, node):
+        # pylint: disable=no-self-use
         if node.value.id == 'self':
             return ast.Name(id=node.attr, ctx=ast.Load())
 
