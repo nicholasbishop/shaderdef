@@ -21,7 +21,6 @@ class Code(object):
         if len(self.lines) != 1:
             raise ValueError('expected exactly one line', self)
         return self.lines[0]
-        
 
 
 class AstToGlsl(ast.NodeVisitor):
@@ -133,7 +132,48 @@ def py_to_glsl(node):
     atg = AstToGlsl()
     code = atg.visit(node)
     # TODO
-    return '\n'.join(code.lines)
+    return code.lines
+
+
+class AttrRename(ast.NodeTransformer):
+    def __init__(self, load_names, store_names):
+        self._load_names = load_names
+        self._store_names = store_names
+        self._func_names = set()
+
+    def visit_Call(self, node):
+        self._func_names.add(node.func.attr)
+        return self.generic_visit(node)
+
+    def visit_Attribute(self, node):
+        # Don't transform function names
+        if node.attr in self._func_names:
+            return node
+
+        if isinstance(node.ctx, ast.Load):
+            names = self._load_names
+        elif isinstance(node.ctx, ast.Store):
+            names = self._store_names
+
+        new_name = names.get(node.attr)
+        if new_name is not None:
+            node.attr = new_name
+
+        return node
+
+
+def rename_attributes(root, load_names, store_names):
+    return AttrRename(load_names, store_names).visit(root)
+
+
+class UnselfifyTransformer(ast.NodeTransformer):
+    def visit_Attribute(self, node):
+        if node.value.id == 'self':
+            return ast.Name(id=node.attr, ctx=ast.Load())
+
+
+def unselfify(node):
+    return UnselfifyTransformer().visit(node)
 
 
 def make_assign(dst, src):

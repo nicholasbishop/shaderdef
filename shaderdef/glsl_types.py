@@ -10,7 +10,10 @@ class FragOutput(object):
 
 class Uniform(object):
     def __init__(self, gtype):
-        pass
+        self.gtype = gtype
+
+    def glsl_decl(self, name):
+        return 'uniform {} {};'.format(self.gtype.__name__, name)
 
 
 class mat4: pass
