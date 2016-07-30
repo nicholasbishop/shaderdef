@@ -30,4 +30,7 @@ class DefaultMaterial(object):
 # TODO
 
 shader = ShaderDef(DefaultMaterial())
+shader.translate()
 print(shader.vert_shader)
+print('---')
+print(shader.frag_shader)

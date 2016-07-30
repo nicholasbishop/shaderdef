@@ -81,13 +81,7 @@ class ShaderDef(object):
         self._material = material
         self._stages = []
         self._external_links = Links()
-
-        self._init_stages()
-        self._init_external_links()
-        self._thread_deps()
-
-        # TODO
-        self._vert_shader = self._stages[0].to_glsl(self._external_links)
+        self._vert_shader = None
         self._frag_shader = None
 
     def _init_stages(self):
@@ -114,9 +108,28 @@ class ShaderDef(object):
         for stage, prev_stage in zip(iter1, iter2):
             prev_stage.provide_deps(stage)
 
+    def translate(self):
+        self._stages = []
+        self._external_links = Links()
+
+        self._init_stages()
+        self._init_external_links()
+        self._thread_deps()
+
+        # TODO
+        self._vert_shader = self._stages[0].to_glsl(self._external_links)
+        self._frag_shader = self._stages[1].to_glsl(self._external_links)
+
     @property
     def vert_shader(self):
         # TODO: do this in the ast
         self._vert_shader = self._vert_shader.replace('vert_shader', 'main')
-        # TODO: declare uniforms et al
+        # TODO: declare inputs/outputs
         return self._vert_shader
+
+    @property
+    def frag_shader(self):
+        # TODO: do this in the ast
+        self._frag_shader = self._frag_shader.replace('frag_shader', 'main')
+        # TODO: declare inputs/outputs
+        return self._frag_shader
