@@ -3,6 +3,7 @@
 import ast
 from unittest import TestCase
 
+from shaderdef.find_method import find_method_ast
 from shaderdef.unselfify import unselfify
 
 
@@ -29,3 +30,17 @@ class TestUnselfify(AstTestCase):
         root = unselfify(ast.parse('foo.var = value'))
         expected = ast.parse('foo.var = value')
         self.assertEqual(root, expected)
+
+
+class SimpleClass(object):
+    def foo(self):
+        pass
+
+
+class TestFindMethod(AstTestCase):
+    def test_find_method(self):
+        self.assertIsNot(find_method_ast(SimpleClass, 'foo'), None)
+
+    def test_method_not_found(self):
+        with self.assertRaises(KeyError):
+            find_method_ast(SimpleClass, 'bad_name')
