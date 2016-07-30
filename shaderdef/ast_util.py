@@ -122,12 +122,6 @@ def find_deps(node):
     return fdv
 
 
-def find_method_ast(cls, method):
-    src = getsource(cls)
-    node = ast.parse(src)
-    return FindMethodVisitor(method).visit(node)
-
-
 def py_to_glsl(node):
     # TODO
     #print_ast(node)
