@@ -1,2 +1,2 @@
 [MESSAGE CONTROL]
-disable=locally-disabled,too-few-public-methods
+disable=locally-disabled,missing-docstring,too-few-public-methods
