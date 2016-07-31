@@ -44,6 +44,9 @@ class AstToGlsl(ast.NodeVisitor):
         code('}')
         return code
 
+    def visit_Pass(self, node):
+        return Code()
+
     def visit_arg(self, node):
         gtype = self.visit(node.annotation).one()
         return Code('{} {}'.format(gtype, node.arg))

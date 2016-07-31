@@ -6,6 +6,7 @@ from unittest import TestCase
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_method import find_method_ast
+from shaderdef.py_to_glsl import py_to_glsl
 from shaderdef.unselfify import unselfify
 
 
@@ -98,3 +99,10 @@ class TestFindDeps(TestCase):
         deps = find_deps(ast.parse('self.var = self.value'))
         self.assertEqual(deps.inputs, set(['value']))
         self.assertEqual(deps.outputs, set(['var']))
+
+
+class TestPyToGlsl(TestCase):
+    def test_empty_function(self):
+        root = ast.parse('def myFunc(): pass')
+        code = ''.join(py_to_glsl(root))
+        self.assertEqual(code, 'void myFunc() {}')
