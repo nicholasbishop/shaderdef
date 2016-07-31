@@ -48,8 +48,28 @@ class TestFindMethod(TestCase):
 
 
 class TestAttrRename(AstTestCase):
-    def test_load_rename(self):
-        root = rename_attributes(ast.parse('var = foo.value1'),
-                                 {'value1': 'value2'}, {})
-        expected = ast.parse('var = foo.value2')
+    def test_load(self):
+        root = rename_attributes(ast.parse('var = self.value1'),
+                                 load_names={'value1': 'value2'})
+        expected = ast.parse('var = self.value2')
+        self.assertEqual(root, expected)
+
+    def test_store(self):
+        root = rename_attributes(ast.parse('self.var1 = value'),
+                                 store_names={'var1': 'var2'})
+        expected = ast.parse('self.var2 = value')
+        self.assertEqual(root, expected)
+
+    def test_load_and_store(self):
+        root = rename_attributes(ast.parse('self.var1 = self.value1'),
+                                 load_names={'value1': 'value2'},
+                                 store_names={'var1': 'var2'})
+        expected = ast.parse('self.var2 = self.value2')
+        self.assertEqual(root, expected)
+
+    def test_load_and_store_same_key(self):
+        root = rename_attributes(ast.parse('self.foo1 = self.foo1'),
+                                 load_names={'foo1': 'load'},
+                                 store_names={'foo1': 'store'})
+        expected = ast.parse('self.store = self.load')
         self.assertEqual(root, expected)

@@ -28,5 +28,9 @@ class AttrRename(ast.NodeTransformer):
         return node
 
 
-def rename_attributes(root, load_names, store_names):
+def rename_attributes(root, load_names=None, store_names=None):
+    if load_names is None:
+        load_names = {}
+    if store_names is None:
+        store_names = {}
     return AttrRename(load_names, store_names).visit(root)
