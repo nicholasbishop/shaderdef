@@ -4,6 +4,7 @@ import ast
 from unittest import TestCase
 
 from shaderdef.attr_rename import rename_attributes
+from shaderdef.find_deps import find_deps
 from shaderdef.find_method import find_method_ast
 from shaderdef.unselfify import unselfify
 
@@ -80,3 +81,20 @@ class TestAttrRename(AstTestCase):
                                  store_names={'myfunc': 'store'})
         expected = ast.parse('self.myfunc(1)')
         self.assertEqual(root, expected)
+
+
+class TestFindDeps(TestCase):
+    def test_find_input(self):
+        deps = find_deps(ast.parse('var = self.value'))
+        self.assertEqual(deps.inputs, set(['value']))
+        self.assertEqual(deps.outputs, set())
+
+    def test_find_output(self):
+        deps = find_deps(ast.parse('self.var = value'))
+        self.assertEqual(deps.inputs, set())
+        self.assertEqual(deps.outputs, set(['var']))
+
+    def test_find_both(self):
+        deps = find_deps(ast.parse('self.var = self.value'))
+        self.assertEqual(deps.inputs, set(['value']))
+        self.assertEqual(deps.outputs, set(['var']))

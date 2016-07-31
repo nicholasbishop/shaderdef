@@ -1,21 +1,22 @@
 import ast
 
-class FindDepsVisitor(ast.NodeVisitor):
+class _FindDepsVisitor(ast.NodeVisitor):
     # pylint: disable=invalid-name
     def __init__(self):
-        super(FindDepsVisitor, self).__init__()
-        self.inputs = []
-        self.outputs = []
+        super(_FindDepsVisitor, self).__init__()
+        self.inputs = set()
+        self.outputs = set()
 
     def visit_Attribute(self, node):
         if node.value.id == 'self':
             if isinstance(node.ctx, ast.Load):
-                self.inputs.append(node.attr)
+                self.inputs.add(node.attr)
             elif isinstance(node.ctx, ast.Store):
-                self.outputs.append(node.attr)
+                self.outputs.add(node.attr)
 
 
 def find_deps(node):
-    fdv = FindDepsVisitor()
+    """Find attributes of "self"."""
+    fdv = _FindDepsVisitor()
     fdv.visit(node)
     return fdv
