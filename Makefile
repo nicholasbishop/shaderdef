@@ -1,7 +1,7 @@
 .PHONY: test
 
 lint:
-	pylint -rn shaderdef test demo.py
+	python3 -m pylint -rn shaderdef test tools *.py
 
 test:
-	python -m unittest discover -v
+	python3 -m unittest discover -v
