@@ -46,7 +46,7 @@ def push_branch():
 
 def sdist_and_upload():
     setup_py_path = os.path.join(SCRIPT_DIR, '../setup.py')
-    run_cmd(sys.executable, '-m', setup_py_path, 'sdist', 'upload')
+    run_cmd(sys.executable, setup_py_path, 'sdist', 'upload')
 
 
 def main():
