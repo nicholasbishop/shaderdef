@@ -1,2 +1,2 @@
 [MESSAGE CONTROL]
-disable=locally-disabled,missing-docstring,too-few-public-methods
+disable=fixme,locally-disabled,missing-docstring,too-few-public-methods
