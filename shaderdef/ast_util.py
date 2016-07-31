@@ -1,5 +1,4 @@
 import ast
-from inspect import getsource
 
 class Code(object):
     def __init__(self, initial_line=None):

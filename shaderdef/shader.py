@@ -60,7 +60,6 @@ class Stage(object):
     def store_names(self, external_links):
         names = {}
         for link in self.find_deps().outputs:
-            unif = external_links.uniforms.get(link)
             # Don't prefix uniforms, external outputs, or builtins
             if (link not in external_links.uniforms and
                 link not in external_links.frag_outputs and

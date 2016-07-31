@@ -33,13 +33,13 @@ class TestUnselfify(AstTestCase):
 
 
 class SimpleClass(object):
-    def foo(self):
+    def my_method(self):
         pass
 
 
 class TestFindMethod(AstTestCase):
     def test_find_method(self):
-        self.assertIsNot(find_method_ast(SimpleClass, 'foo'), None)
+        self.assertIsNot(find_method_ast(SimpleClass, 'my_method'), None)
 
     def test_method_not_found(self):
         with self.assertRaises(KeyError):
