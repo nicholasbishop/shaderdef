@@ -4,10 +4,10 @@ from shaderdef.ast_util import (find_deps,
                                 make_assign,
                                 make_self_attr_load,
                                 make_self_attr_store,
-                                py_to_glsl,
-                                rename_attributes)
+                                py_to_glsl)
 from shaderdef.find_method import find_method_ast
 from shaderdef.glsl_types import Attribute, FragOutput, Uniform
+from shaderdef.attr_rename import rename_attributes
 from shaderdef.unselfify import unselfify
 
 
