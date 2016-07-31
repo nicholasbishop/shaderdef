@@ -73,3 +73,10 @@ class TestAttrRename(AstTestCase):
                                  store_names={'foo1': 'store'})
         expected = ast.parse('self.store = self.load')
         self.assertEqual(root, expected)
+
+    def test_ignore_function_call(self):
+        root = rename_attributes(ast.parse('self.myfunc(1)'),
+                                 load_names={'myfunc': 'load'},
+                                 store_names={'myfunc': 'store'})
+        expected = ast.parse('self.myfunc(1)')
+        self.assertEqual(root, expected)
