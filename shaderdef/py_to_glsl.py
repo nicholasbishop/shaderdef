@@ -78,6 +78,9 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_Return(self, node):
         return Code('return {};'.format(self.visit(node.value).one()))
 
+    def visit_Expr(self, node):
+        return self.visit(node.value)
+
     def visit_BinOp(self, node):
         # TODO(nicholasbishop): FloorDiv, Pow, LShift, RShift,
         # BitOr, BitXor, BitAnd
@@ -87,8 +90,9 @@ class AstToGlsl(ast.NodeVisitor):
             ast.Mult: '*',
             ast.Div: '/',
             ast.Mod: '%',
-            ast.MatMult: '*',
         }
+        if hasattr(ast, 'MatMult'):
+            ops[ast.MatMult] = '*'
         return Code('({} {} {})'.format(
             self.visit(node.left).one(),
             ops[node.op.__class__],

@@ -108,6 +108,11 @@ class TestPyToGlsl(TestCase):
         self.assertEqual(code, 'void myFunc() {}')
 
     def test_assign(self):
-        root = ast.parse('def myFunc(): a = b')
+        root = ast.parse('a = b')
         code = ''.join(py_to_glsl(root))
-        self.assertEqual(code, 'void myFunc() {    a = b;}')
+        self.assertEqual(code, 'a = b;')
+
+    def test_binop(self):
+        root = ast.parse('a - b * c / d')
+        code = ''.join(py_to_glsl(root))
+        self.assertEqual(code, '(a - ((b * c) / d))')
