@@ -2,12 +2,12 @@ from ast import fix_missing_locations
 from collections import OrderedDict
 from shaderdef.ast_util import (make_assign,
                                 make_self_attr_load,
-                                make_self_attr_store,
-                                py_to_glsl)
+                                make_self_attr_store)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_method import find_method_ast
 from shaderdef.glsl_types import Attribute, FragOutput, Uniform
+from shaderdef.py_to_glsl import py_to_glsl
 from shaderdef.unselfify import unselfify
 
 
