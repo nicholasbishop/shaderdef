@@ -65,6 +65,12 @@ class Stage(object):
             lines.append(unif.glsl_decl(link))
 
         # TODO
+        if self.name == 'vert_shader':
+            for link, attr in external_links.attributes.items():
+                # TODO: layout=
+                lines.append(attr.glsl_decl(link))
+
+        # TODO
         if self.name == 'frag_shader':
             for link, fout in external_links.frag_outputs.items():
                 lines.append(fout.glsl_decl(link))
