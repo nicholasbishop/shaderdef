@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 from __future__ import print_function
 
 from shaderdef.shader import ShaderDef
@@ -15,6 +17,10 @@ class DefaultMaterial(object):
         self.model = Uniform(mat4)
 
         self.frag_color = FragOutput(vec4)
+
+    def perspective_projection(projection: mat4, camera: mat4,
+                               model: mat4, point: vec3) -> vec4:
+        return projection * camera * model * vec4(point, 1.0)
 
     def vert_shader(self):
         self.gl_Position = self.perspective_projection(self.projection,
