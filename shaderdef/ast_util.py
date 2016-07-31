@@ -73,32 +73,6 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_Return(self, node):
         return Code('return {};'.format(self.visit(node.value).one()))
 
-# src = getsource(myFunc)
-# node = ast.parse(src)
-
-
-class FindMethodVisitor(ast.NodeVisitor):
-    # pylint: disable=invalid-name
-    def __init__(self, method):
-        super(FindMethodVisitor, self).__init__()
-        self._method = method
-
-    def visit_Module(self, node):
-        return self.visit_children(node)
-
-    def visit_ClassDef(self, node):
-        return self.visit_children(node)
-
-    def visit_FunctionDef(self, node):
-        if node.name == self._method:
-            return node
-
-    def visit_children(self, node):
-        for child in node.body:
-            result = self.visit(child)
-            if result is not None:
-                return result
-
 
 class FindDepsVisitor(ast.NodeVisitor):
     # pylint: disable=invalid-name
