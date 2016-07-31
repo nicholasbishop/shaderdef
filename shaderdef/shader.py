@@ -32,10 +32,14 @@ class ShaderDef(object):
 
     @property
     def vert_shader(self):
+        if self._vert_shader is None:
+            raise ValueError('material has not been translated yet')
         # TODO: declare inputs/outputs
         return self._vert_shader
 
     @property
     def frag_shader(self):
+        if self._frag_shader is None:
+            raise ValueError('material has not been translated yet')
         # TODO: declare inputs/outputs
         return self._frag_shader
