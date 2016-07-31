@@ -3,6 +3,7 @@
 import ast
 from unittest import TestCase
 
+from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_method import find_method_ast
 from shaderdef.unselfify import unselfify
 
@@ -37,10 +38,18 @@ class SimpleClass(object):
         pass
 
 
-class TestFindMethod(AstTestCase):
+class TestFindMethod(TestCase):
     def test_find_method(self):
         self.assertIsNot(find_method_ast(SimpleClass, 'my_method'), None)
 
     def test_method_not_found(self):
         with self.assertRaises(KeyError):
             find_method_ast(SimpleClass, 'bad_name')
+
+
+class TestAttrRename(AstTestCase):
+    def test_load_rename(self):
+        root = rename_attributes(ast.parse('var = foo.value1'),
+                                 {'value1': 'value2'}, {})
+        expected = ast.parse('var = foo.value2')
+        self.assertEqual(root, expected)
