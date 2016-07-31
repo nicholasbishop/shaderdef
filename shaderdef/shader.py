@@ -61,9 +61,9 @@ class Stage(object):
         names = {}
         for link in self.find_deps().outputs:
             # Don't prefix uniforms, external outputs, or builtins
-            if link not in external_links.uniforms and
-               link not in external_links.frag_outputs and
-               not link.startswith('gl_')):
+            if link not in external_links.uniforms and \
+               link not in external_links.frag_outputs and \
+               not link.startswith('gl_'):
                 names[link] = self.output_prefix + link
         return names
 
