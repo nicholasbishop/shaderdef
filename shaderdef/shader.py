@@ -1,7 +1,8 @@
 from ast import fix_missing_locations
 from shaderdef.ast_util import (make_assign,
                                 make_self_attr_load,
-                                make_self_attr_store)
+                                make_self_attr_store,
+                                rename_function)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_method import find_method_ast
@@ -64,6 +65,7 @@ class Stage(object):
         lines = []
         for link, unif in self.required_uniforms(external_links.uniforms):
             lines.append(unif.glsl_decl(link))
+        rename_function(self.ast_root, 'main')
         ast_root = rename_attributes(
             self.ast_root,
             load_names=self.load_names(external_links),
@@ -109,14 +111,10 @@ class ShaderDef(object):
 
     @property
     def vert_shader(self):
-        # TODO: do this in the ast
-        self._vert_shader = self._vert_shader.replace('vert_shader', 'main')
         # TODO: declare inputs/outputs
         return self._vert_shader
 
     @property
     def frag_shader(self):
-        # TODO: do this in the ast
-        self._frag_shader = self._frag_shader.replace('frag_shader', 'main')
         # TODO: declare inputs/outputs
         return self._frag_shader
