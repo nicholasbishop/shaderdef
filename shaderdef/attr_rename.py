@@ -8,7 +8,12 @@ class AttrRename(ast.NodeTransformer):
         self._func_names = set()
 
     def visit_Call(self, node):
-        self._func_names.add(node.func.attr)
+        if isinstance(node.func, ast.Attribute):
+            self._func_names.add(node.func.attr)
+        elif isinstance(node.func, ast.Name):
+            self._func_names.add(node.func.id)
+        else:
+            raise NotImplementedError('unknown call type', node.func)
         return self.generic_visit(node)
 
     def visit_Attribute(self, node):
