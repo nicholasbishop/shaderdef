@@ -1,9 +1,3 @@
-from shaderdef.ast_util import (make_assign,
-                                make_self_attr_load,
-                                make_self_attr_store,
-                                rename_function)
-from shaderdef.find_method import find_method_ast
-from shaderdef.glsl_types import Attribute, FragOutput, Uniform
 from shaderdef.material import create_stages, find_external_links
 from shaderdef.stage import make_prefix
 

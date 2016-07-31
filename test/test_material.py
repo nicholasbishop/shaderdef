@@ -11,7 +11,7 @@ class TestFindExternalLinks(TestCase):
                 self.myattr = Attribute(vec4)
                 self.myout = FragOutput(vec4)
                 self.myunif = Uniform(vec4)
-                
+
         self.material = MyMaterial()
 
     def test_links(self):

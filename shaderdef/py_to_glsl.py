@@ -44,7 +44,8 @@ class AstToGlsl(ast.NodeVisitor):
         code('}')
         return code
 
-    def visit_Pass(self, node):
+    def visit_Pass(self, _):
+        # pylint: disable=no-self-use
         return Code()
 
     def visit_arg(self, node):
