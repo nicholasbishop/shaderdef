@@ -36,8 +36,8 @@ class Stage(object):
     def provide_deps(self, next_stage):
         for dep in next_stage.find_deps().inputs:
             if dep not in self.find_deps().outputs:
-                dst = make_self_attr_load(dep)
-                src = make_self_attr_store(dep)
+                dst = make_self_attr_store(dep)
+                src = make_self_attr_load(dep)
                 assign = make_assign(dst, src)
                 self.ast_root.body.append(assign)
 
