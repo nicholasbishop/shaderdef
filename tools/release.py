@@ -29,7 +29,7 @@ def bump_minor_version():
     version[-1] += 1
     print('new version: {}'.format(format_version_string(version)))
 
-    contents = "__version__ = '{}'".format(format_version_string(version))
+    contents = "__version__ = '{}'\n".format(format_version_string(version))
 
     with open(VERSION_PATH, 'w') as wfile:
         wfile.write(contents)
@@ -52,7 +52,7 @@ def sdist_and_upload():
 def main():
     run_tests()
     bump_minor_version()
-    commit_setup_py()
+    commit_version()
     push_branch()
     sdist_and_upload()
 
