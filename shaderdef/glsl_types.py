@@ -15,6 +15,9 @@ class FragOutput(EqualityMixin):
     def __repr__(self):
         return 'FragOutput({})'.format(self.gtype)
 
+    def glsl_decl(self, name):
+        return 'out {} {};'.format(self.gtype.__name__, name)
+
 
 class Uniform(EqualityMixin):
     def __init__(self, gtype):

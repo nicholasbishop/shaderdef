@@ -63,6 +63,12 @@ class Stage(object):
         lines = []
         for link, unif in self.required_uniforms(external_links.uniforms):
             lines.append(unif.glsl_decl(link))
+
+        # TODO
+        if self.name == 'frag_shader':
+            for link, fout in external_links.frag_outputs.items():
+                lines.append(fout.glsl_decl(link))
+
         rename_function(self.ast_root, 'main')
         ast_root = rename_attributes(
             self.ast_root,
