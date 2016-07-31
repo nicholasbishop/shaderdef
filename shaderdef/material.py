@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from shaderdef.glsl_types import Attribute, FragOutput, Uniform
+from shaderdef.stage import Stage
 
 
 class Links(object):
@@ -21,3 +22,10 @@ def find_external_links(material):
         elif isinstance(val, Uniform):
             links.uniforms[key] = val
     return links
+
+
+def create_stages(material):
+    # TODO
+    stage_names = ('vert_shader', 'frag_shader')
+    for name in stage_names:
+        yield Stage(material.__class__, name)
