@@ -106,3 +106,8 @@ class TestPyToGlsl(TestCase):
         root = ast.parse('def myFunc(): pass')
         code = ''.join(py_to_glsl(root))
         self.assertEqual(code, 'void myFunc() {}')
+
+    def test_assign(self):
+        root = ast.parse('def myFunc(): a = b')
+        code = ''.join(py_to_glsl(root))
+        self.assertEqual(code, 'void myFunc() {    a = b;}')
