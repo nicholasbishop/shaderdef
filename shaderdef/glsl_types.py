@@ -7,8 +7,12 @@ class Attribute(EqualityMixin):
     def __repr__(self):
         return 'Attribute({})'.format(self.gtype)
 
-    def glsl_decl(self, name):
-        return 'in {} {};'.format(self.gtype.__name__, name)
+    def glsl_decl(self, name, location=None):
+        if location is None:
+            layout = ''
+        else:
+            layout = 'layout(location={}) '.format(location)
+        return '{}in {} {};'.format(layout, self.gtype.__name__, name)
 
 
 class FragOutput(EqualityMixin):

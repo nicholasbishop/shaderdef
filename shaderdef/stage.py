@@ -61,14 +61,15 @@ class Stage(object):
 
     def to_glsl(self, external_links, library):
         lines = []
+        lines.append('#version 330 core')
         for link, unif in self.required_uniforms(external_links.uniforms):
             lines.append(unif.glsl_decl(link))
 
         # TODO
         if self.name == 'vert_shader':
-            for link, attr in external_links.attributes.items():
+            for index, (link, attr) in enumerate(external_links.attributes.items()):
                 # TODO: layout=
-                lines.append(attr.glsl_decl(link))
+                lines.append(attr.glsl_decl(link, location=index))
 
         # TODO
         if self.name == 'frag_shader':
