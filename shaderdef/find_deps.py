@@ -6,6 +6,13 @@ class _FindDepsVisitor(ast.NodeVisitor):
         super(_FindDepsVisitor, self).__init__()
         self.inputs = set()
         self.outputs = set()
+        self.calls = set()
+
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Attribute):
+            self.calls.add(node.func.attr)
+        else:
+            self.generic_visit(node)
 
     def visit_Attribute(self, node):
         if node.value.id == 'self':

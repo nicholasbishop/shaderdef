@@ -7,7 +7,6 @@ class ShaderDef(object):
         self._material = material
 
         self._stages = []
-        self._external_links = None
         self._vert_shader = None
         self._frag_shader = None
 
@@ -22,13 +21,15 @@ class ShaderDef(object):
 
     def translate(self):
         self._stages = list(create_stages(self._material))
-        self._external_links = find_external_links(self._material)
-
         self._thread_deps()
 
+        external_links = find_external_links(self._material)
+
         # TODO
-        self._vert_shader = self._stages[0].to_glsl(self._external_links)
-        self._frag_shader = self._stages[1].to_glsl(self._external_links)
+        self._vert_shader = self._stages[0].to_glsl(external_links,
+                                                    self._material.__class__)
+        self._frag_shader = self._stages[1].to_glsl(external_links,
+                                                    self._material.__class__)
 
     @property
     def vert_shader(self):

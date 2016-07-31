@@ -59,7 +59,7 @@ class Stage(object):
                 names[link] = self.output_prefix + link
         return names
 
-    def to_glsl(self, external_links):
+    def to_glsl(self, external_links, library):
         lines = []
         for link, unif in self.required_uniforms(external_links.uniforms):
             lines.append(unif.glsl_decl(link))
@@ -68,6 +68,11 @@ class Stage(object):
         if self.name == 'frag_shader':
             for link, fout in external_links.frag_outputs.items():
                 lines.append(fout.glsl_decl(link))
+
+        # TODO
+        for func_name in self.find_deps().calls:
+            auxfunc = find_method_ast(library, func_name)
+            lines += py_to_glsl(auxfunc)
 
         rename_function(self.ast_root, 'main')
         ast_root = rename_attributes(

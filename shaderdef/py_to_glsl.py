@@ -78,6 +78,23 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_Return(self, node):
         return Code('return {};'.format(self.visit(node.value).one()))
 
+    def visit_BinOp(self, node):
+        # TODO(nicholasbishop): FloorDiv, Pow, LShift, RShift,
+        # BitOr, BitXor, BitAnd
+        ops = {
+            ast.Add: '+',
+            ast.Sub: '-',
+            ast.Mult: '*',
+            ast.Div: '/',
+            ast.Mod: '%',
+            ast.MatMult: '*',
+        }
+        return Code('({} {} {})'.format(
+            self.visit(node.left).one(),
+            ops[node.op.__class__],
+            self.visit(node.right).one(),
+        ))
+
 
 def py_to_glsl(root):
     """Translate Python AST into GLSL code.
