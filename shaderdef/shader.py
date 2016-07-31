@@ -1,5 +1,4 @@
 from ast import fix_missing_locations
-from collections import OrderedDict
 from shaderdef.ast_util import (make_assign,
                                 make_self_attr_load,
                                 make_self_attr_store)
@@ -7,6 +6,7 @@ from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_method import find_method_ast
 from shaderdef.glsl_types import Attribute, FragOutput, Uniform
+from shaderdef.material import find_external_links
 from shaderdef.py_to_glsl import py_to_glsl
 from shaderdef.unselfify import unselfify
 
@@ -14,13 +14,6 @@ from shaderdef.unselfify import unselfify
 def make_prefix(name):
     parts = name.split('_')
     return ''.join(part[0] for part in parts) + '_'
-
-
-class Links(object):
-    def __init__(self):
-        self.attributes = OrderedDict()
-        self.frag_outputs = OrderedDict()
-        self.uniforms = OrderedDict()
 
 
 class Stage(object):
@@ -95,19 +88,8 @@ class ShaderDef(object):
         for name in stage_names:
             yield Stage(self._material.__class__, name)
 
-    def _find_external_links(self):
-        links = Links()
-        for key in dir(self._material):
-            val = getattr(self._material, key)
-            if isinstance(val, Attribute):
-                links.attributes[key] = val
-            elif isinstance(val, FragOutput):
-                links.frag_outputs[key] = val
-            elif isinstance(val, Uniform):
-                links.uniforms[key] = val
-        return links
-
     def _thread_deps(self):
+        """Link inputs and outputs between stages."""
         iter1 = reversed(self._stages)
         iter2 = reversed(self._stages)
         next(iter2)
@@ -117,7 +99,7 @@ class ShaderDef(object):
 
     def translate(self):
         self._stages = list(self._create_stages())
-        self._external_links = self._find_external_links()
+        self._external_links = find_external_links(self._material)
 
         self._thread_deps()
 

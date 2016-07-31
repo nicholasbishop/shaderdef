@@ -1,16 +1,27 @@
-class Attribute(object):
-    def __init__(self, gtype):
-        pass
+from shaderdef.equality import EqualityMixin
 
-
-class FragOutput(object):
-    def __init__(self, gtype):
-        pass
-
-
-class Uniform(object):
+class Attribute(EqualityMixin):
     def __init__(self, gtype):
         self.gtype = gtype
+
+    def __repr__(self):
+        return 'Attribute({})'.format(self.gtype)
+
+
+class FragOutput(EqualityMixin):
+    def __init__(self, gtype):
+        self.gtype = gtype
+
+    def __repr__(self):
+        return 'FragOutput({})'.format(self.gtype)
+
+
+class Uniform(EqualityMixin):
+    def __init__(self, gtype):
+        self.gtype = gtype
+
+    def __repr__(self):
+        return 'Uniform({})'.format(self.gtype)
 
     def glsl_decl(self, name):
         return 'uniform {} {};'.format(self.gtype.__name__, name)
