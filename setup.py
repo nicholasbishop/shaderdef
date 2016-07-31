@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 
 from setuptools import setup
+from tools import version_util
+
 
 setup(name='shaderdef',
-      version='0.5.2',
+      version=version_util.load_version_as_string(),
       description='Transform Python code into GLSL shaders',
       url='https://github.com/nicholasbishop/shaderdef',
       author='Nicholas Bishop',
