@@ -3,8 +3,8 @@
 from setuptools import setup
 
 setup(name='shaderdef',
-      version='0.5.0',
-      description='The funniest joke in the world',
+      version='0.5.1',
+      description='Transform Python code into GLSL shaders',
       url='https://github.com/nicholasbishop/shaderdef',
       author='Nicholas Bishop',
       author_email='nicholasbishop@gmail.com',
