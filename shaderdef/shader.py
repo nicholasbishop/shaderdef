@@ -83,26 +83,29 @@ class Stage(object):
 class ShaderDef(object):
     def __init__(self, material):
         self._material = material
+
         self._stages = []
-        self._external_links = Links()
+        self._external_links = None
         self._vert_shader = None
         self._frag_shader = None
 
-    def _init_stages(self):
+    def _create_stages(self):
         # TODO
         stage_names = ('vert_shader', 'frag_shader')
         for name in stage_names:
-            self._stages.append(Stage(self._material.__class__, name))
+            yield Stage(self._material.__class__, name)
 
-    def _init_external_links(self):
+    def _find_external_links(self):
+        links = Links()
         for key in dir(self._material):
             val = getattr(self._material, key)
             if isinstance(val, Attribute):
-                self._external_links.attributes[key] = val
+                links.attributes[key] = val
             elif isinstance(val, FragOutput):
-                self._external_links.frag_outputs[key] = val
+                links.frag_outputs[key] = val
             elif isinstance(val, Uniform):
-                self._external_links.uniforms[key] = val
+                links.uniforms[key] = val
+        return links
 
     def _thread_deps(self):
         iter1 = reversed(self._stages)
@@ -113,11 +116,9 @@ class ShaderDef(object):
             prev_stage.provide_deps(stage)
 
     def translate(self):
-        self._stages = []
-        self._external_links = Links()
+        self._stages = list(self._create_stages())
+        self._external_links = self._find_external_links()
 
-        self._init_stages()
-        self._init_external_links()
         self._thread_deps()
 
         # TODO
