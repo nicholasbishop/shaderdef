@@ -2,10 +2,13 @@
 
 from __future__ import print_function
 
+import os
 from subprocess import check_call
 import sys
 
-from tools.version_util import load_version_as_list, format_version_string
+from tools.version_util import (SCRIPT_DIR, VERSION_PATH,
+                                load_version_as_list,
+                                format_version_string)
 
 
 def run_cmd(*cmd):
@@ -28,20 +31,22 @@ def bump_minor_version():
 
     contents = "__version__ = '{}'".format(format_version_string(version))
 
-    # with open(VERSION_PATH, 'w') as wfile:
-    #     wfile.write(contents)
+    with open(VERSION_PATH, 'w') as wfile:
+        wfile.write(contents)
 
 
-def commit_setup_py():
-    pass
+def commit_version():
+    run_cmd('git', 'commit', VERSION_PATH,
+            '--message', 'Bump minor version number')
 
 
 def push_branch():
-    pass
+    run_cmd('git', 'push')
 
 
 def sdist_and_upload():
-    pass
+    setup_py_path = os.path.join(SCRIPT_DIR, '../setup.py')
+    run_cmd(sys.executable, '-m', setup_py_path, 'sdist', 'upload')
 
 
 def main():
