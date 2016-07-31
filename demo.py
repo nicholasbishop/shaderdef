@@ -3,11 +3,15 @@
 from __future__ import print_function
 
 from shaderdef.shader import ShaderDef
+from shaderdef.material import Material
 from shaderdef.glsl_types import (Attribute, Uniform, FragOutput,
                                   mat4, vec3, vec4)
 
-class DefaultMaterial(object):
+# pylint: disable=too-many-instance-attributes
+class DefaultMaterial(Material):
     def __init__(self):
+        super(DefaultMaterial, self).__init__()
+
         self.vert_loc = Attribute(vec3)
         self.vert_nor = Attribute(vec3)
         self.vert_col = Attribute(vec4)
@@ -18,6 +22,7 @@ class DefaultMaterial(object):
 
         self.frag_color = FragOutput(vec4)
 
+    @staticmethod
     def perspective_projection(projection: mat4, camera: mat4,
                                model: mat4, point: vec3) -> vec4:
         return projection * camera * model * vec4(point, 1.0)
@@ -34,9 +39,13 @@ class DefaultMaterial(object):
 
 
 # TODO
+def main():
+    shader = ShaderDef(DefaultMaterial())
+    shader.translate()
+    print(shader.vert_shader)
+    print('---')
+    print(shader.frag_shader)
 
-shader = ShaderDef(DefaultMaterial())
-shader.translate()
-print(shader.vert_shader)
-print('---')
-print(shader.frag_shader)
+
+if __name__ == '__main__':
+    main()

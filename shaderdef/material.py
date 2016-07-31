@@ -29,3 +29,9 @@ def create_stages(material):
     stage_names = ('vert_shader', 'frag_shader')
     for name in stage_names:
         yield Stage(material.__class__, name)
+
+
+class Material(object):
+    def __init__(self):
+        # pylint: disable=invalid-name
+        self.gl_Position = None

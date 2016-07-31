@@ -17,9 +17,10 @@ def run_cmd(*cmd):
     check_call(cmd)
 
 
-def run_tests():
-    """Run the unit tests."""
-    run_cmd(sys.executable, '-m', 'unittest', 'discover', '-v')
+def test_and_lint():
+    """Run the unit tests and pylint."""
+    run_cmd('make', 'test')
+    run_cmd('make', 'lint')
 
 
 def bump_minor_version():
@@ -50,7 +51,7 @@ def sdist_and_upload():
 
 
 def main():
-    run_tests()
+    test_and_lint()
     bump_minor_version()
     commit_version()
     push_branch()
