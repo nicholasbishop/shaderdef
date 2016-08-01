@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from shaderdef.glsl_types import FragOutput, vec4
 from shaderdef.shader import ShaderDef
+from test.util import deindent
 
 
 class MyMaterial(object):
@@ -13,14 +14,6 @@ class MyMaterial(object):
 
     def frag_shader(self):
         self.color = vec4(1.0, 0.0, 0.0, 1.0)
-
-
-def deindent(text):
-    lines = text.splitlines()
-    out_lines = []
-    for line in lines:
-        out_lines.append(line.lstrip())
-    return ''.join(out_lines)
 
 
 class TestShader(TestCase):
