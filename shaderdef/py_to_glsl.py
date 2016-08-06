@@ -11,9 +11,9 @@ class Code(object):
     def __call__(self, line):
         self.lines.append(line)
 
-    def indent(self, code):
+    def append_block(self, code):
         for line in code.lines:
-            self.lines.append(self._indent_string + line)
+            self.lines.append(self._indent_string + line + ';')
 
     def one(self):
         if len(self.lines) != 1:
@@ -69,7 +69,7 @@ class AstToGlsl(ast.NodeVisitor):
         code('{} {}({}) {{'.format(return_type, node.name,
                                    ', '.join(params)))
         for child in node.body:
-            code.indent(self.visit(child))
+            code.append_block(self.visit(child))
         code('}')
         return code
 
@@ -92,8 +92,8 @@ class AstToGlsl(ast.NodeVisitor):
         if len(node.targets) != 1:
             raise ValueError('multiple assignment targets not allowed', node)
         target = node.targets[0]
-        return Code('{} = {};'.format(self.visit(target).one(),
-                                      self.visit(node.value).one()))
+        return Code('{} = {}'.format(self.visit(target).one(),
+                                     self.visit(node.value).one()))
 
     def visit_Num(self, node):
         # pylint: disable=no-self-use
@@ -105,7 +105,7 @@ class AstToGlsl(ast.NodeVisitor):
         return Code('{}({})'.format(name, ', '.join(args)))
 
     def visit_Return(self, node):
-        return Code('return {};'.format(self.visit(node.value).one()))
+        return Code('return {}'.format(self.visit(node.value).one()))
 
     def visit_Expr(self, node):
         return self.visit(node.value)
@@ -129,9 +129,9 @@ class AstToGlsl(ast.NodeVisitor):
         return Code('[{}]'.format(self.visit(node.value).one()))
 
     def visit_AugAssign(self, node):
-        return Code('{} {}= {};'.format(self.visit(node.target).one(),
-                                        op_symbol(node.op),
-                                        self.visit(node.value).one()))
+        return Code('{} {}= {}'.format(self.visit(node.target).one(),
+                                       op_symbol(node.op),
+                                       self.visit(node.value).one()))
 
     def visit_Compare(self, node):
         if len(node.ops) != 1 or len(node.comparators) != 1:
@@ -146,7 +146,7 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_If(self, node):
         code = Code('if ({}) {{'.format(self.visit(node.test).one()))
         for child in node.body:
-            code.indent(self.visit(child))
+            code.append_block(self.visit(child))
         code('}')
         return code
         

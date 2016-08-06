@@ -14,7 +14,7 @@ class TestPyToGlsl(TestCase):
         self.assertCodeEqual('def myFunc(): pass', 'void myFunc() {}')
 
     def test_assign(self):
-        self.assertCodeEqual('a = b', 'a = b;')
+        self.assertCodeEqual('a = b', 'a = b')
 
     def test_binop(self):
         self.assertCodeEqual('a - b * c / d', '(a - ((b * c) / d))')
@@ -26,7 +26,7 @@ class TestPyToGlsl(TestCase):
         self.assertCodeEqual('-a', '-a')
 
     def test_augassign(self):
-        self.assertCodeEqual('a += 1', 'a += 1;')
+        self.assertCodeEqual('a += 1', 'a += 1')
 
     def test_compare(self):
         self.assertCodeEqual('a < b', 'a < b')
