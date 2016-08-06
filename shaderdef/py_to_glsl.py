@@ -81,6 +81,14 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_Expr(self, node):
         return self.visit(node.value)
 
+    def visit_UnaryOp(self, node):
+        # TODO(nicholasbishop): other unary ops
+        ops = {
+            ast.USub: '-'
+        }
+        return Code('{}{}'.format(ops[node.op.__class__],
+                                  self.visit(node.operand).one()))
+
     def visit_BinOp(self, node):
         # TODO(nicholasbishop): FloorDiv, Pow, LShift, RShift,
         # BitOr, BitXor, BitAnd

@@ -24,3 +24,8 @@ class TestPyToGlsl(TestCase):
         root = ast.parse('a[0]')
         code = ''.join(py_to_glsl(root))
         self.assertEqual(code, 'a[0]')
+
+    def test_unaryop(self):
+        root = ast.parse('-a')
+        code = ''.join(py_to_glsl(root))
+        self.assertEqual(code, '-a')
