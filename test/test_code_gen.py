@@ -5,27 +5,22 @@ from shaderdef.py_to_glsl import py_to_glsl
 
 
 class TestPyToGlsl(TestCase):
-    def test_empty_function(self):
-        root = ast.parse('def myFunc(): pass')
+    def assertCodeEqual(self, pycode, glslcode):
+        root = ast.parse(pycode)
         code = ''.join(py_to_glsl(root))
-        self.assertEqual(code, 'void myFunc() {}')
+        self.assertEqual(code, glslcode)
+
+    def test_empty_function(self):
+        self.assertCodeEqual('def myFunc(): pass', 'void myFunc() {}')
 
     def test_assign(self):
-        root = ast.parse('a = b')
-        code = ''.join(py_to_glsl(root))
-        self.assertEqual(code, 'a = b;')
+        self.assertCodeEqual('a = b', 'a = b;')
 
     def test_binop(self):
-        root = ast.parse('a - b * c / d')
-        code = ''.join(py_to_glsl(root))
-        self.assertEqual(code, '(a - ((b * c) / d))')
+        self.assertCodeEqual('a - b * c / d', '(a - ((b * c) / d))')
 
     def test_subscript(self):
-        root = ast.parse('a[0]')
-        code = ''.join(py_to_glsl(root))
-        self.assertEqual(code, 'a[0]')
+        self.assertCodeEqual('a[0]', 'a[0]')
 
     def test_unaryop(self):
-        root = ast.parse('-a')
-        code = ''.join(py_to_glsl(root))
-        self.assertEqual(code, '-a')
+        self.assertCodeEqual('-a', '-a')
