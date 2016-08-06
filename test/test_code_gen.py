@@ -2,13 +2,13 @@ import ast
 from unittest import TestCase
 
 from shaderdef.py_to_glsl import py_to_glsl
-
+from test.util import deindent
 
 class TestPyToGlsl(TestCase):
     def assertCodeEqual(self, pycode, glslcode):
         root = ast.parse(pycode)
-        code = ''.join(py_to_glsl(root))
-        self.assertEqual(code, glslcode)
+        code = '\n'.join(py_to_glsl(root))
+        self.assertEqual(deindent(code), glslcode)
 
     def test_empty_function(self):
         self.assertCodeEqual('def myFunc(): pass', 'void myFunc() {}')
@@ -30,3 +30,6 @@ class TestPyToGlsl(TestCase):
 
     def test_compare(self):
         self.assertCodeEqual('a < b', 'a < b')
+
+    def test_if(self):
+        self.assertCodeEqual('if a: a = b', 'if (a) {a = b;}')

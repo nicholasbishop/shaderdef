@@ -143,6 +143,14 @@ class AstToGlsl(ast.NodeVisitor):
                                       op_symbol(op),
                                       self.visit(right).one()))
 
+    def visit_If(self, node):
+        code = Code('if ({}) {{'.format(self.visit(node.test).one()))
+        for child in node.body:
+            code.indent(self.visit(child))
+        code('}')
+        return code
+        
+
     def visit(self, node):
         ret = super().visit(node)
         if ret is None:
