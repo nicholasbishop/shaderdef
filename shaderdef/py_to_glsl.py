@@ -13,7 +13,10 @@ class Code(object):
 
     def append_block(self, code):
         for line in code.lines:
-            self.lines.append(self._indent_string + line + ';')
+            line = self._indent_string + line
+            if line[-1] not in (';', '{', '}'):
+                line += ';'
+            self.lines.append(line)
 
     def one(self):
         if len(self.lines) != 1:

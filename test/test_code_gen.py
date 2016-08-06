@@ -33,3 +33,7 @@ class TestPyToGlsl(TestCase):
 
     def test_if(self):
         self.assert_code_equal('if a: a = b', 'if (a) {a = b;}')
+
+    def test_nested_blocks(self):
+        self.assert_code_equal('if a:\n if b: a = b',
+                               'if (a) {if (b) {a = b;}}')
