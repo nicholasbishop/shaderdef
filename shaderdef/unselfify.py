@@ -5,7 +5,8 @@ import ast
 class _UnselfifyTransformer(ast.NodeTransformer):
     # pylint: disable=invalid-name,no-self-use
     def visit_Attribute(self, node):
-        if node.value.id == 'self':
+        value = node.value
+        if isinstance(value, ast.Name) and value.id == 'self':
             return ast.Name(id=node.attr, ctx=node.ctx)
         else:
             return node

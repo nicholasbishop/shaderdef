@@ -15,7 +15,8 @@ class _FindDepsVisitor(ast.NodeVisitor):
             self.generic_visit(node)
 
     def visit_Attribute(self, node):
-        if node.value.id == 'self':
+        value = node.value
+        if isinstance(value, ast.Name) and value.id == 'self':
             if isinstance(node.ctx, ast.Load):
                 self.inputs.add(node.attr)
             elif isinstance(node.ctx, ast.Store):
