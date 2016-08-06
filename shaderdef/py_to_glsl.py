@@ -21,7 +21,7 @@ class Code(object):
         return self.lines[0]
 
 
-def op_symbol(op):
+def op_symbol(op_node):
     """Get the GLSL symbol for a Python operator."""
     ops = {
         # TODO(nicholasbishop): other unary ops
@@ -47,7 +47,7 @@ def op_symbol(op):
     # Python3 matrix multiplication
     if hasattr(ast, 'MatMult'):
         ops[ast.MatMult] = '*'
-    return ops[op.__class__]
+    return ops[op_node.__class__]
 
 
 class AstToGlsl(ast.NodeVisitor):
@@ -149,7 +149,6 @@ class AstToGlsl(ast.NodeVisitor):
             code.append_block(self.visit(child))
         code('}')
         return code
-        
 
     def visit(self, node):
         ret = super().visit(node)
