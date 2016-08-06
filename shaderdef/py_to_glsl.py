@@ -21,6 +21,27 @@ class Code(object):
         return self.lines[0]
 
 
+def op_symbol(op):
+    """Get the GLSL symbol for a Python operator."""
+    ops = {
+        # TODO(nicholasbishop): other unary ops
+        ast.UAdd: '+',
+        ast.USub: '-',
+
+        # TODO(nicholasbishop): FloorDiv, Pow, LShift, RShift,
+        # BitOr, BitXor, BitAnd
+        ast.Add: '+',
+        ast.Sub: '-',
+        ast.Mult: '*',
+        ast.Div: '/',
+        ast.Mod: '%',
+    }
+    # Python3 matrix multiplication
+    if hasattr(ast, 'MatMult'):
+        ops[ast.MatMult] = '*'
+    return ops[op.__class__]
+
+
 class AstToGlsl(ast.NodeVisitor):
     # pylint: disable=invalid-name
     def visit_Module(self, node):
@@ -82,37 +103,27 @@ class AstToGlsl(ast.NodeVisitor):
         return self.visit(node.value)
 
     def visit_UnaryOp(self, node):
-        # TODO(nicholasbishop): other unary ops
-        ops = {
-            ast.USub: '-'
-        }
-        return Code('{}{}'.format(ops[node.op.__class__],
+        return Code('{}{}'.format(op_symbol(node.op),
                                   self.visit(node.operand).one()))
 
     def visit_BinOp(self, node):
-        # TODO(nicholasbishop): FloorDiv, Pow, LShift, RShift,
-        # BitOr, BitXor, BitAnd
-        ops = {
-            ast.Add: '+',
-            ast.Sub: '-',
-            ast.Mult: '*',
-            ast.Div: '/',
-            ast.Mod: '%',
-        }
-        if hasattr(ast, 'MatMult'):
-            ops[ast.MatMult] = '*'
         return Code('({} {} {})'.format(
             self.visit(node.left).one(),
-            ops[node.op.__class__],
+            op_symbol(node.op),
             self.visit(node.right).one(),
         ))
 
     def visit_Subscript(self, node):
         return Code('{}{}'.format(self.visit(node.value).one(),
-                                  self.visit(node.slice)))
+                                  self.visit(node.slice).one()))
 
     def visit_Index(self, node):
-        return '[{}]'.format(self.visit(node.value).one())
+        return Code('[{}]'.format(self.visit(node.value).one()))
+
+    def visit_AugAssign(self, node):
+        return Code('{} {}= {};'.format(self.visit(node.target).one(),
+                                        op_symbol(node.op),
+                                        self.visit(node.value).one()))
 
     def visit(self, node):
         ret = super().visit(node)

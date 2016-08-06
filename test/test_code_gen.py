@@ -24,3 +24,6 @@ class TestPyToGlsl(TestCase):
 
     def test_unaryop(self):
         self.assertCodeEqual('-a', '-a')
+
+    def test_augassign(self):
+        self.assertCodeEqual('a += 1', 'a += 1;')
