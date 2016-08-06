@@ -99,6 +99,13 @@ class AstToGlsl(ast.NodeVisitor):
             self.visit(node.right).one(),
         ))
 
+    def visit_Subscript(self, node):
+        return Code('{}{}'.format(self.visit(node.value).one(),
+                                  self.visit(node.slice)))
+
+    def visit_Index(self, node):
+        return '[{}]'.format(self.visit(node.value).one())
+
 
 def py_to_glsl(root):
     """Translate Python AST into GLSL code.
