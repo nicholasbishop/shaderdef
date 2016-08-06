@@ -35,6 +35,14 @@ def op_symbol(op):
         ast.Mult: '*',
         ast.Div: '/',
         ast.Mod: '%',
+
+        # Comparison
+        ast.Eq: '=',
+        ast.NotEq: '!=',
+        ast.Lt: '<',
+        ast.LtE: '<=',
+        ast.Gt: '>',
+        ast.GtE: '>=',
     }
     # Python3 matrix multiplication
     if hasattr(ast, 'MatMult'):
@@ -124,6 +132,16 @@ class AstToGlsl(ast.NodeVisitor):
         return Code('{} {}= {};'.format(self.visit(node.target).one(),
                                         op_symbol(node.op),
                                         self.visit(node.value).one()))
+
+    def visit_Compare(self, node):
+        if len(node.ops) != 1 or len(node.comparators) != 1:
+            raise NotImplementedError('only one op/comparator is supported',
+                                      node)
+        op = node.ops[0]
+        right = node.comparators[0]
+        return Code('{} {} {}'.format(self.visit(node.left).one(),
+                                      op_symbol(op),
+                                      self.visit(right).one()))
 
     def visit(self, node):
         ret = super().visit(node)

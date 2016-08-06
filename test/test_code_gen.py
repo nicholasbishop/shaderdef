@@ -27,3 +27,6 @@ class TestPyToGlsl(TestCase):
 
     def test_augassign(self):
         self.assertCodeEqual('a += 1', 'a += 1;')
+
+    def test_compare(self):
+        self.assertCodeEqual('a < b', 'a < b')
