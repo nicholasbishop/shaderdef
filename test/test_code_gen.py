@@ -19,3 +19,8 @@ class TestPyToGlsl(TestCase):
         root = ast.parse('a - b * c / d')
         code = ''.join(py_to_glsl(root))
         self.assertEqual(code, '(a - ((b * c) / d))')
+
+    def test_subscript(self):
+        root = ast.parse('a[0]')
+        code = ''.join(py_to_glsl(root))
+        self.assertEqual(code, 'a[0]')
