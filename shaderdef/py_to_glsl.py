@@ -114,6 +114,14 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_Index(self, node):
         return '[{}]'.format(self.visit(node.value).one())
 
+    def visit(self, node):
+        ret = super().visit(node)
+        if ret is None:
+            raise KeyError('unhandled ast node type',
+                           ast.dump(node))
+        else:
+            return ret
+
 
 def py_to_glsl(root):
     """Translate Python AST into GLSL code.
