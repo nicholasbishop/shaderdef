@@ -34,11 +34,7 @@ def create_stages(material):
 class Material(object):
     def __init__(self):
         # pylint: disable=invalid-name
-        self.gl_Position = None
+        self.gl_position = None
 
-    def emit_vert(self, **kwargs):
+    def emit_vertex(self, **kwargs):
         pass
-
-    def emit_frag(self, **kwargs):
-        pass
-

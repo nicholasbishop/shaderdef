@@ -28,15 +28,15 @@ class DefaultMaterial(Material):
         return projection * camera * model * vec4(point, 1.0)
 
     def vert_shader(self):
-        self.gl_Position = self.perspective_projection(self.projection,
+        self.gl_position = self.perspective_projection(self.projection,
                                                        self.camera,
                                                        self.model,
                                                        self.vert_loc)
 
     def geom_shader(self):
-        self.emit_vert(tag=1)
-        self.emit_vert(tag=2)
-        self.emit_vert(tag=3)
+        self.emit_vertex(tag=1)
+        self.emit_vertex(tag=2)
+        self.emit_vertex(tag=3)
 
     def frag_shader(self, tag: int):
         if tag == 1:

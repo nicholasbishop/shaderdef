@@ -92,7 +92,7 @@ class Stage(object):
     def define_aux_functions(self, lines, library):
         # TODO
         for func_name in self.find_deps().calls:
-            if func_name in ('emit_vert', 'emit_frag'):
+            if func_name == 'emit_vertex':
                 continue
             auxfunc = find_function(library, func_name)
             lines += py_to_glsl(auxfunc)
@@ -103,7 +103,8 @@ class Stage(object):
             load_names=self.load_names(external_links),
             store_names=self.store_names(external_links))
 
-    def rename_gl_builtins(self, ast_root):
+    @staticmethod
+    def rename_gl_builtins(ast_root):
         store_names = {
             'gl_position': 'gl_Position',
         }
