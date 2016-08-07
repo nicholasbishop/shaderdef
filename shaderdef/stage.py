@@ -1,11 +1,13 @@
 from ast import fix_missing_locations
+
 from shaderdef.ast_util import (make_assign,
                                 make_self_attr_load,
                                 make_self_attr_store,
+                                parse_class,
                                 rename_function)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
-from shaderdef.find_method import find_method_ast
+from shaderdef.find_function import find_function
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
 
@@ -18,7 +20,8 @@ def make_prefix(name):
 class Stage(object):
     def __init__(self, obj, func_name):
         self.name = func_name
-        self.ast_root = find_method_ast(obj, func_name)
+        root = parse_class(obj)
+        self.ast_root = find_function(root, func_name)
         self.input_prefix = ''
         self.output_prefix = make_prefix(self.name)
 
@@ -80,7 +83,7 @@ class Stage(object):
         for func_name in self.find_deps().calls:
             if func_name in ('emit_vert', 'emit_frag'):
                 continue
-            auxfunc = find_method_ast(library, func_name)
+            auxfunc = find_function(library, func_name)
             lines += py_to_glsl(auxfunc)
 
         rename_function(self.ast_root, 'main')

@@ -1,3 +1,4 @@
+from shaderdef.ast_util import parse_class
 from shaderdef.material import create_stages, find_external_links
 from shaderdef.stage import make_prefix
 
@@ -27,12 +28,10 @@ class ShaderDef(object):
         external_links = find_external_links(self._material)
 
         # TODO
-        self._vert_shader = self._stages[0].to_glsl(external_links,
-                                                    self._material.__class__)
-        self._geom_shader = self._stages[1].to_glsl(external_links,
-                                                    self._material.__class__)
-        self._frag_shader = self._stages[2].to_glsl(external_links,
-                                                    self._material.__class__)
+        library = parse_class(self._material.__class__)
+        self._vert_shader = self._stages[0].to_glsl(external_links, library)
+        self._geom_shader = self._stages[1].to_glsl(external_links, library)
+        self._frag_shader = self._stages[2].to_glsl(external_links, library)
 
     @property
     def vert_shader(self):

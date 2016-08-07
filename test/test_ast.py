@@ -3,9 +3,10 @@
 import ast
 from unittest import TestCase
 
+from shaderdef.ast_util import parse_class
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
-from shaderdef.find_method import find_method_ast
+from shaderdef.find_function import find_function
 from shaderdef.unselfify import unselfify
 
 
@@ -39,13 +40,16 @@ class SimpleClass(object):
         pass
 
 
-class TestFindMethod(TestCase):
-    def test_find_method(self):
-        self.assertIsNot(find_method_ast(SimpleClass, 'my_method'), None)
+class TestFindFunction(TestCase):
+    def setUp(self):
+        self.root = parse_class(SimpleClass)
 
-    def test_method_not_found(self):
+    def test_find_function(self):
+        self.assertIsNot(find_function(self.root, 'my_method'), None)
+
+    def test_function_not_found(self):
         with self.assertRaises(KeyError):
-            find_method_ast(SimpleClass, 'bad_name')
+            find_function(self.root, 'bad_name')
 
 
 class TestAttrRename(AstTestCase):

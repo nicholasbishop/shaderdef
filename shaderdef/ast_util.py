@@ -1,4 +1,5 @@
 import ast
+from inspect import getsource
 
 
 def make_assign(dst, src):
@@ -22,6 +23,11 @@ def make_self_attr_store(attr):
 def append_to_function_body(func_node, new_node):
     ast.fix_missing_locations(new_node)
     func_node.body.append(new_node)
+
+
+def parse_class(cls):
+    src = getsource(cls)
+    return ast.parse(src)
 
 
 def rename_function(func_node, new_name):
