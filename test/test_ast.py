@@ -40,8 +40,8 @@ class SimpleClass(object):
     def my_method(self):
         pass
 
-    def method_with_params(self, foo: int):
-        return foo
+    def method_with_params(self, thing: int):
+        return self, thing
 
 
 class TestFindFunction(TestCase):
@@ -116,7 +116,7 @@ class TestRemoveFunctionParameters(AstTestCase):
         actual = find_function(self.root, 'method_with_params')
         remove_function_parameters(actual)
 
-        root = ast.parse('def method_with_params(): return foo')
+        root = ast.parse('def method_with_params(): return self, thing')
         expected = find_function(root, 'method_with_params')
 
         self.assertEqual(actual, expected)
