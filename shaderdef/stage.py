@@ -63,22 +63,25 @@ class Stage(object):
                 names[link] = self.output_prefix + link
         return names
 
-    def to_glsl(self, external_links, library):
-        lines = []
-        lines.append('#version 330 core')
+    def declare_uniforms(self, lines, external_links):
         for link, unif in self.required_uniforms(external_links.uniforms):
             lines.append(unif.glsl_decl(link))
 
+    def declare_attributes(self, lines, external_links):
         # TODO
-        if self.name == 'vert_shader':
-            for index, (link, attr) in enumerate(external_links.attributes.items()):
-                lines.append(attr.glsl_decl(link, location=index))
+        if self.name != 'vert_shader':
+            return
+        for index, (link, attr) in enumerate(external_links.attributes.items()):
+            lines.append(attr.glsl_decl(link, location=index))
 
+    def declare_frag_outputs(self, lines, external_links):
         # TODO
-        if self.name == 'frag_shader':
-            for link, fout in external_links.frag_outputs.items():
-                lines.append(fout.glsl_decl(link))
+        if self.name != 'frag_shader':
+            return
+        for link, fout in external_links.frag_outputs.items():
+            lines.append(fout.glsl_decl(link))
 
+    def define_aux_functions(self, lines, library):
         # TODO
         for func_name in self.find_deps().calls:
             if func_name in ('emit_vert', 'emit_frag'):
@@ -86,6 +89,16 @@ class Stage(object):
             auxfunc = find_function(library, func_name)
             lines += py_to_glsl(auxfunc)
 
+    def to_glsl(self, external_links, library):
+        lines = []
+        lines.append('#version 330 core')
+
+        self.declare_uniforms(lines, external_links)
+        self.declare_attributes(lines, external_links)
+        self.declare_frag_outputs(lines, external_links)
+        self.define_aux_functions(lines, library)
+
+        # The main shader function must always be "void main()"
         rename_function(self.ast_root, 'main')
         remove_function_parameters(self.ast_root)
 
