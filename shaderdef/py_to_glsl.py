@@ -66,7 +66,10 @@ class AstToGlsl(ast.NodeVisitor):
             return_type = 'void'
         else:
             return_type = self.visit(node.returns).one()
-        params = node.args.args[1:]  # skip self
+        params = node.args.args[:]
+        # Skip self
+        if len(params) != 0 and params[0].arg == 'self':
+            params = params[1:]
         params = (self.visit(param).one() for param in params)
         code = Code()
         code('{} {}({}) {{'.format(return_type, node.name,
