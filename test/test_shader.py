@@ -12,6 +12,9 @@ class MyMaterial(object):
     def vert_shader(self):
         pass
 
+    def geom_shader(self):
+        pass
+
     def frag_shader(self):
         self.color = vec4(1.0, 0.0, 0.0, 1.0)
 

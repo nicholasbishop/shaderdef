@@ -78,6 +78,8 @@ class Stage(object):
 
         # TODO
         for func_name in self.find_deps().calls:
+            if func_name in ('emit_vert', 'emit_frag'):
+                continue
             auxfunc = find_method_ast(library, func_name)
             lines += py_to_glsl(auxfunc)
 

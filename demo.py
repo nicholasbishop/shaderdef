@@ -33,6 +33,9 @@ class DefaultMaterial(Material):
                                                        self.model,
                                                        self.vert_loc)
 
+    def geom_shader(self):
+        pass
+
     def frag_shader(self):
         # artificial dep test
         self.frag_color = self.vert_col

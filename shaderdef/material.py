@@ -26,7 +26,7 @@ def find_external_links(material):
 
 def create_stages(material):
     # TODO
-    stage_names = ('vert_shader', 'frag_shader')
+    stage_names = ('vert_shader', 'geom_shader', 'frag_shader')
     for name in stage_names:
         yield Stage(material.__class__, name)
 
@@ -35,3 +35,10 @@ class Material(object):
     def __init__(self):
         # pylint: disable=invalid-name
         self.gl_Position = None
+
+    def emit_vert(self, **kwargs):
+        pass
+
+    def emit_frag(self, **kwargs):
+        pass
+

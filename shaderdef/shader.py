@@ -8,6 +8,7 @@ class ShaderDef(object):
 
         self._stages = []
         self._vert_shader = None
+        self._geom_shader = None
         self._frag_shader = None
 
     def _thread_deps(self):
@@ -28,7 +29,9 @@ class ShaderDef(object):
         # TODO
         self._vert_shader = self._stages[0].to_glsl(external_links,
                                                     self._material.__class__)
-        self._frag_shader = self._stages[1].to_glsl(external_links,
+        self._geom_shader = self._stages[1].to_glsl(external_links,
+                                                    self._material.__class__)
+        self._frag_shader = self._stages[2].to_glsl(external_links,
                                                     self._material.__class__)
 
     @property
@@ -37,6 +40,13 @@ class ShaderDef(object):
             raise ValueError('material has not been translated yet')
         # TODO: declare inputs/outputs
         return self._vert_shader
+
+    @property
+    def geom_shader(self):
+        if self._geom_shader is None:
+            raise ValueError('material has not been translated yet')
+        # TODO: declare inputs/outputs
+        return self._geom_shader
 
     @property
     def frag_shader(self):
