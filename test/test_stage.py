@@ -15,6 +15,7 @@ class MockLinks(object):
 
 class TestStageUniforms(TestCase):
     def simple_stage(self):
+        # pylint: disable=no-member,unused-variable
         my_output = self.my_uniform
 
     def setUp(self):
