@@ -1,6 +1,7 @@
 from ast import fix_missing_locations
 
-from shaderdef.ast_util import (make_assign,
+from shaderdef.ast_util import (get_function_parameters,
+                                make_assign,
                                 make_self_attr_load,
                                 make_self_attr_store,
                                 parse_class,
@@ -25,6 +26,8 @@ class Stage(object):
         self.ast_root = find_function(root, func_name)
         self.input_prefix = ''
         self.output_prefix = make_prefix(self.name)
+        self.parameters = get_function_parameters(self.ast_root,
+                                                  include_self=False)
 
     def find_deps(self):
         return find_deps(self.ast_root)
@@ -81,6 +84,11 @@ class Stage(object):
         for link, fout in external_links.frag_outputs.items():
             lines.append(fout.glsl_decl(link))
 
+    def declare_inputs(self, lines):
+        # TODO
+        for pname, ptype in self.parameters:
+            lines.append('in {} {};'.format(ptype, pname))
+
     def define_aux_functions(self, lines, library):
         # TODO
         for func_name in self.find_deps().calls:
@@ -96,6 +104,7 @@ class Stage(object):
         self.declare_uniforms(lines, external_links)
         self.declare_attributes(lines, external_links)
         self.declare_frag_outputs(lines, external_links)
+        self.declare_inputs(lines)
         self.define_aux_functions(lines, library)
 
         # The main shader function must always be "void main()"
