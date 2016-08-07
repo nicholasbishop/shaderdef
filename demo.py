@@ -34,11 +34,17 @@ class DefaultMaterial(Material):
                                                        self.vert_loc)
 
     def geom_shader(self):
-        pass
+        self.emit_vert(tag=1)
+        self.emit_vert(tag=2)
+        self.emit_vert(tag=3)
 
-    def frag_shader(self):
-        # artificial dep test
-        self.frag_color = self.vert_col
+    def frag_shader(self, tag: int):
+        if tag == 1:
+            self.frag_color = vec4(1, 0, 0, 1)
+        elif tag == 2:
+            self.frag_color = vec4(0, 1, 0, 1)
+        elif tag == 3:
+            self.frag_color = vec4(0, 0, 1, 1)
 
 
 # TODO
@@ -46,6 +52,8 @@ def main():
     shader = ShaderDef(DefaultMaterial())
     shader.translate()
     print(shader.vert_shader)
+    print('---')
+    print(shader.geom_shader)
     print('---')
     print(shader.frag_shader)
 
