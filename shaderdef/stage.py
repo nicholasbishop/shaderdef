@@ -97,6 +97,24 @@ class Stage(object):
             auxfunc = find_function(library, func_name)
             lines += py_to_glsl(auxfunc)
 
+    def rename_gl_attributes(self, ast_root, external_links):
+        return rename_attributes(
+            ast_root,
+            load_names=self.load_names(external_links),
+            store_names=self.store_names(external_links))
+
+    def rename_gl_builtins(self, ast_root):
+        store_names = {
+            'gl_position': 'gl_Position',
+        }
+        call_names = {
+            'emit_vert': 'EmitVertex',
+        }
+        return rename_attributes(
+            ast_root,
+            store_names=store_names,
+            call_names=call_names)
+
     def to_glsl(self, external_links, library):
         lines = []
         lines.append('#version 330 core')
@@ -107,14 +125,15 @@ class Stage(object):
         self.declare_inputs(lines)
         self.define_aux_functions(lines, library)
 
-        # The main shader function must always be "void main()"
-        rename_function(self.ast_root, 'main')
-        remove_function_parameters(self.ast_root)
+        ast_root = self.ast_root
 
-        ast_root = rename_attributes(
-            self.ast_root,
-            load_names=self.load_names(external_links),
-            store_names=self.store_names(external_links))
+        # The main shader function must always be "void main()"
+        rename_function(ast_root, 'main')
+        remove_function_parameters(ast_root)
+
+        ast_root = self.rename_gl_attributes(ast_root, external_links)
+        ast_root = self.rename_gl_builtins(ast_root)
+
         ast_root = unselfify(ast_root)
         lines += py_to_glsl(ast_root)
         return '\n'.join(lines)
