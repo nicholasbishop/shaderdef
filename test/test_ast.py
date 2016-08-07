@@ -3,7 +3,8 @@
 import ast
 from unittest import TestCase
 
-from shaderdef.ast_util import parse_class, remove_function_parameters
+from shaderdef.ast_util import (get_function_parameters, parse_class,
+                                remove_function_parameters)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
@@ -36,7 +37,7 @@ class TestUnselfify(AstTestCase):
 
 
 class SimpleClass(object):
-    """Used for testing find_function and remove_function_parameters."""
+    """Do-nothing class used in some of the tests."""
     def my_method(self):
         pass
 
@@ -121,3 +122,16 @@ class TestRemoveFunctionParameters(AstTestCase):
 
         self.assertEqual(actual, expected)
 
+
+class TestGetFunctionParameters(TestCase):
+    def setUp(self):
+        self.root = parse_class(SimpleClass)
+
+    def test_params_and_types(self):
+        func = find_function(self.root, 'method_with_params')
+
+        params = get_function_parameters(func)
+        self.assertEqual(params, [('self', None), ('thing', 'int')])
+
+        params = get_function_parameters(func, include_self=False)
+        self.assertEqual(params, [('thing', 'int')])
