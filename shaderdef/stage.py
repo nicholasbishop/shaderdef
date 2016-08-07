@@ -72,7 +72,6 @@ class Stage(object):
         # TODO
         if self.name == 'vert_shader':
             for index, (link, attr) in enumerate(external_links.attributes.items()):
-                # TODO: layout=
                 lines.append(attr.glsl_decl(link, location=index))
 
         # TODO
