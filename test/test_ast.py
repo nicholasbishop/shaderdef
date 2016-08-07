@@ -96,17 +96,19 @@ class TestFindDeps(TestCase):
     def test_find_input(self):
         deps = find_deps(ast.parse('var = self.value'))
         self.assertEqual(deps.inputs, set(['value']))
-        self.assertEqual(deps.outputs, set())
 
     def test_find_output(self):
         deps = find_deps(ast.parse('self.var = value'))
-        self.assertEqual(deps.inputs, set())
         self.assertEqual(deps.outputs, set(['var']))
 
-    def test_find_both(self):
-        deps = find_deps(ast.parse('self.var = self.value'))
+    def test_find_call(self):
+        deps = find_deps(ast.parse('self.myfunc()'))
+        self.assertEqual(deps.calls, set(['myfunc']))
+
+    def test_input_in_call(self):
+        deps = find_deps(ast.parse('self.myfunc(self.value)'))
+        self.assertEqual(deps.calls, set(['myfunc']))
         self.assertEqual(deps.inputs, set(['value']))
-        self.assertEqual(deps.outputs, set(['var']))
 
 
 class TestRemoveFunctionParameters(AstTestCase):

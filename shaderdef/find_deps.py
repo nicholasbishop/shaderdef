@@ -8,9 +8,16 @@ class _FindDepsVisitor(ast.NodeVisitor):
         self.outputs = set()
         self.calls = set()
 
+    def __repr__(self):
+        return 'Deps(inputs={}, outputs={}, calls={})'.format(self.inputs,
+                                                              self.outputs,
+                                                              self.calls)
+
     def visit_Call(self, node):
         if isinstance(node.func, ast.Attribute):
             self.calls.add(node.func.attr)
+            for arg in node.args:
+                self.visit(arg)
         else:
             self.generic_visit(node)
 
