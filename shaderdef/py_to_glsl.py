@@ -153,6 +153,24 @@ class AstToGlsl(ast.NodeVisitor):
         code('}')
         return code
 
+    def visit_For(self, node):
+        if not isinstance(node.target, ast.Name):
+            raise NotImplementedError('for-loop target must be an ast.Name')
+        itr = node.iter
+        if not isinstance(itr, ast.Call) or itr.func.id != 'range':
+            raise NotImplementedError('only range() for loops are supported')
+        if len(itr.args) != 1 or not isinstance(itr.args[0], ast.Num):
+            raise NotImplementedError('only 0..n for loops are supported')
+        end = self.visit(itr.args[0]).one()
+        var = self.visit(node.target).one()
+        code = Code()
+        code('for (int {var} = 0; {var} < {end}; {var}++) {{'.format(var=var,
+                                                                     end=end))
+        for child in node.body:
+            code.append_block(self.visit(child))
+        code('}')
+        return code
+
     def visit(self, node):
         ret = super().visit(node)
         if ret is None:
