@@ -150,6 +150,11 @@ class AstToGlsl(ast.NodeVisitor):
         code = Code('if ({}) {{'.format(self.visit(node.test).one()))
         for child in node.body:
             code.append_block(self.visit(child))
+        # TODO(nicholasbishop): emit "else if" to make output cleaner
+        if len(node.orelse) != 0:
+            code('} else {')
+            for child in node.orelse:
+                code.append_block(self.visit(child))
         code('}')
         return code
 

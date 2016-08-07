@@ -34,6 +34,11 @@ class TestPyToGlsl(TestCase):
     def test_if(self):
         self.assert_code_equal('if a: a = b', 'if (a) {a = b;}')
 
+    def test_if_else(self):
+        self.assert_code_equal('if a:\n return 1\n'
+                               'else:\n return 2\n',
+                               'if (a) {return 1;} else {return 2;}')
+
     def test_for(self):
         self.assert_code_equal('for i in range(3): a += 1',
                                'for (int i = 0; i < 3; i++) {a += 1;}')
