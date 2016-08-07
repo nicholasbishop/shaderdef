@@ -30,7 +30,21 @@ def parse_class(cls):
     return ast.parse(src)
 
 
+def ensure_node_is_function(node):
+    """Raise a TypeError if node is not a FunctionDef.
+
+    This isn't strictly necessary but makes errors easier to find.
+    """
+    if not isinstance(node, ast.FunctionDef):
+        raise TypeError('input must be an ast.FunctionDef', node)
+
+
 def rename_function(func_node, new_name):
-    if not isinstance(func_node, ast.FunctionDef):
-        raise TypeError('input must be an ast.FunctionDef', func_node)
+    ensure_node_is_function(func_node)
     func_node.name = new_name
+
+
+def remove_function_parameters(func_node):
+    """Remove all parameters from a function AST node."""
+    ensure_node_is_function(func_node)
+    func_node.args.args = []

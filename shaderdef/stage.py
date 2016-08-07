@@ -4,6 +4,7 @@ from shaderdef.ast_util import (make_assign,
                                 make_self_attr_load,
                                 make_self_attr_store,
                                 parse_class,
+                                remove_function_parameters,
                                 rename_function)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
@@ -87,6 +88,8 @@ class Stage(object):
             lines += py_to_glsl(auxfunc)
 
         rename_function(self.ast_root, 'main')
+        remove_function_parameters(self.ast_root)
+
         ast_root = rename_attributes(
             self.ast_root,
             load_names=self.load_names(external_links),
