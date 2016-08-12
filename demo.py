@@ -1,62 +1,115 @@
 #! /usr/bin/env python3
 
 from __future__ import print_function
+from typing import Iterator, Sequence
 
-from shaderdef.shader import ShaderDef
-from shaderdef.material import Material
-from shaderdef.glsl_types import (Attribute, Uniform, FragOutput,
-                                  mat4, vec3, vec4)
-
-# pylint: disable=too-many-instance-attributes
-class DefaultMaterial(Material):
-    def __init__(self):
-        super(DefaultMaterial, self).__init__()
-
-        self.vert_loc = Attribute(vec3)
-        self.vert_nor = Attribute(vec3)
-        self.vert_col = Attribute(vec4)
-
-        self.projection = Uniform(mat4)
-        self.camera = Uniform(mat4)
-        self.model = Uniform(mat4)
-
-        self.frag_color = FragOutput(vec4)
-
-    @staticmethod
-    def perspective_projection(projection: mat4, camera: mat4,
-                               model: mat4, point: vec3) -> vec4:
-        return projection * camera * model * vec4(point, 1.0)
-
-    def vert_shader(self):
-        self.gl_position = self.perspective_projection(self.projection,
-                                                       self.camera,
-                                                       self.model,
-                                                       self.vert_loc)
-
-    def geom_shader(self):
-        self.emit_vertex(tag=1)
-        self.emit_vertex(tag=2)
-        self.emit_vertex(tag=3)
-
-    def frag_shader(self, tag: int):
-        if tag == 1:
-            self.frag_color = vec4(1, 0, 0, 1)
-        elif tag == 2:
-            self.frag_color = vec4(0, 1, 0, 1)
-        elif tag == 3:
-            self.frag_color = vec4(0, 0, 1, 1)
+from shaderdef.glsl_types import (Array3, ShaderInterface, mat4,
+                                  noperspective, vec2, vec3, vec4)
+from shaderdef.glsl_funcs import end_primitive, exp2, length, mod
 
 
-# TODO
-def main():
-    shader = ShaderDef(DefaultMaterial())
-    shader.translate()
-    print(shader.vert_shader)
-    print('---')
-    print(shader.geom_shader)
-    print('---')
-    print(shader.frag_shader)
+class Attributes(ShaderInterface):
+    vert_loc = vec3()
+    vert_nor = vec3()
+    vert_col = vec4()
 
 
-if __name__ == '__main__':
-    main()
+class Uniforms(ShaderInterface):
+    projection = mat4()
+    camera = mat4()
+    model = mat4()
+    fb_size = vec2()
+
+
+class VsOut(ShaderInterface):
+    gl_position = vec4()
+    normal = vec3()
+    color = vec4()
+
+
+class GsOut(ShaderInterface):
+    gl_position = vec4()
+    altitudes = vec3(noperspective)
+    normal = vec3()
+    color = vec4()
+
+
+def perspective_projection(projection: mat4, camera: mat4,
+                           model: mat4, point: vec3) -> vec4:
+    return projection * camera * model * vec4(point, 1.0)
+
+
+def viewport_to_screen_space(framebuffer_size: vec2, point: vec4) -> vec2:
+    """Transform point in viewport space to screen space."""
+    return (framebuffer_size * point.xy) / point.w
+
+
+# Distance of each triangle vertex to the opposite edge
+def triangle_2d_altitudes(triangle: Array3[vec2]) -> vec3:
+    ed0 = vec2(triangle[2] - triangle[1])
+    ed1 = vec2(triangle[2] - triangle[0])
+    ed2 = vec2(triangle[1] - triangle[0])
+
+    area = float(abs((ed1.x * ed2.y) -
+                     (ed1.y * ed2.x)))
+
+    return vec3(area / length(ed0),
+                area / length(ed1),
+                area / length(ed2))
+
+def vert_shader(unif: Uniforms, attr: Attributes) -> VsOut:
+    return VsOut(gl_position=perspective_projection(unif.projection,
+                                                    unif.camera,
+                                                    unif.model,
+                                                    attr.vert_loc),
+                 normal=attr.vert_nor,
+                 color=attr.vert_col)
+
+
+def geom_shader(unif: Uniforms, vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
+    triangle = Array3(vec2)
+    triangle[0] = viewport_to_screen_space(unif.fb_size, vs_out[0].gl_position)
+    triangle[1] = viewport_to_screen_space(unif.fb_size, vs_out[1].gl_position)
+    triangle[2] = viewport_to_screen_space(unif.fb_size, vs_out[2].gl_position)
+
+    altitudes = vec3(triangle_2d_altitudes(triangle))
+
+    yield GsOut(altitudes=vec3(altitudes[0], 0, 0),
+                normal=vs_out[0].normal,
+                color=vs_out[0].normal)
+
+    yield GsOut(altitudes=vec3(0, altitudes[0], 0),
+                normal=vs_out[1].normal,
+                color=vs_out[1].normal)
+
+    yield GsOut(altitudes=vec3(0, 0, altitudes[0]),
+                normal=vs_out[2].normal,
+                color=vs_out[2].normal)
+
+    end_primitive()
+
+
+def frag_shader(gs_out: GsOut):
+    color = vec4((gs_out.normal.x + 1.0) * 0.5,
+                 (gs_out.normal.y + 1.0) * 0.5,
+                 (gs_out.normal.z + 1.0) * 0.5,
+                 1.0)
+
+    # Adapted from
+    # http://strattonbrazil.blogspot.com/2011/09/single-pass-wireframe-rendering_10.html
+    nearest = float(min(min(gs_out.altitudes[0], gs_out.altitudes[1]),
+                        gs_out.altitudes[2]))
+    edge_intensity = float(1.0 - exp2(-1.0 * nearest * nearest))
+
+    color = color * edge_intensity
+
+    # TODO, dijkstra viz hack
+    dista = float(gs_out.color[0])
+
+    if dista < 0:
+        color *= vec4(0.3, 0.3, 0.3, 1.0)
+    else:
+        # color[0] = dista;
+        rep = float(0.1)
+        fac = float(1.0 / rep)
+        color[0] = pow(mod(gs_out.color[0], rep) * fac, 4)

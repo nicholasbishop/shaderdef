@@ -26,8 +26,12 @@ class Stage(object):
         self.ast_root = find_function(root, func_name)
         self.input_prefix = ''
         self.output_prefix = make_prefix(self.name)
-        self.parameters = get_function_parameters(self.ast_root,
-                                                  include_self=False)
+        # TODO
+        if 'geom' not in self.name:
+            self.parameters = get_function_parameters(self.ast_root,
+                                                      include_self=False)
+        else:
+            self.parameters = []
 
     def find_deps(self):
         return find_deps(self.ast_root)
