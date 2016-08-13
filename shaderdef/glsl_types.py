@@ -1,20 +1,6 @@
-from typing import Generic, MutableSequence, TypeVar
-
+from typing import (Generic, SupportsAbs, SupportsInt, SupportsFloat,
+                    TypeVar)
 from shaderdef.equality import EqualityMixin
-
-class Attribute(EqualityMixin):
-    def __init__(self, gtype):
-        self.gtype = gtype
-
-    def __repr__(self):
-        return 'Attribute({})'.format(self.gtype)
-
-    def glsl_decl(self, name, location=None):
-        if location is None:
-            layout = ''
-        else:
-            layout = 'layout(location={}) '.format(location)
-        return '{}in {} {};'.format(layout, self.gtype.__name__, name)
 
 
 class FragOutput(EqualityMixin):
@@ -28,43 +14,44 @@ class FragOutput(EqualityMixin):
         return 'out {} {};'.format(self.gtype.__name__, name)
 
 
-class Uniform(EqualityMixin):
-    def __init__(self, gtype):
-        self.gtype = gtype
-
-    def __repr__(self):
-        return 'Uniform({})'.format(self.gtype)
-
-    def glsl_decl(self, name):
-        return 'uniform {} {};'.format(self.gtype.__name__, name)
-
-
 class BuiltinType(object):
     def __init__(self, *args):
         pass
 
 
-# pylint: disable=too-many-ancestors
+class GlslType(SupportsAbs, SupportsInt, SupportsFloat):
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
+    def __getattr__(self, name) -> 'GlslType':
+        return GlslType(self, name)
 
-class Indexable(object):
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> 'GlslType':
+        return GlslType(self, index)
+
+    def __setitem__(self, index, val) -> 'GlslType':
+        return GlslType(self, index, val)
+
+    def __abs__(self) -> 'GlslType':
+        return GlslType(self)
+
+    def __add__(self, other) -> 'GlslType':
+        return GlslType(self, other)
+
+    def __sub__(self, other) -> 'GlslType':
+        return GlslType(self, other)
+
+    def __mul__(self, other) -> 'GlslType':
+        return GlslType(self, other)
+
+    def __truediv__(self, other) -> 'GlslType':
+        return GlslType(self, other)
+
+    def __int__(self):
         pass
 
-    def __setitem__(self, index, val):
-        pass
-
-    def __len__(self):
-        pass
-
-
-class Addable(object):
-    def __add__(self, other):
-        pass
-
-
-class Mulable(Addable):
-    def __mul__(self, other):
+    def __float__(self):
         pass
 
 
@@ -72,55 +59,51 @@ class ShaderInterface(object):
     def __init__(self, **kwargs):
         pass
 
+# pylint: disable=invalid-name
+mat2 = GlslType
+mat3 = GlslType
+mat4 = GlslType
+vec2 = GlslType
+vec3 = GlslType
+vec4 = GlslType
+
+class void(object):
+    pass
 
 # TODO
-T = TypeVar('T')
-class Array3(MutableSequence[T], Indexable):
+GlslArrayElem = TypeVar('GlslArrayElem')
+class GlslArray(Generic[GlslArrayElem]):
     def __init__(self, gtype):
         pass
 
-# pylint: disable=invalid-name
-class HasXY(Indexable, Mulable):
-    @property
-    def x(self) -> float:
-        pass
-    @property
-    def y(self) -> float:
-        pass
-    @property
-    def xy(self):
-        pass
+    def __getitem__(self, index):
+        return GlslType(self, index)
+
+    def __setitem__(self, index, val):
+        return GlslType(self, index, val)
 
 
-class HasXYZ(HasXY):
-    @property
-    def z(self) -> float:
-        pass
-    @property
-    def xyz(self):
-        pass
+# TODO(nicholasbishop): this is obviously really ugly, and requires
+# users to define their own type alias for larger arrays. But at least
+# for now it seems that numbers aren't allowed as type parameters in
+# the style that C++ allows (e.g. std::array<float, 3>)
+Array1 = GlslArray
+Array2 = GlslArray
+Array3 = GlslArray
+Array4 = GlslArray
+Array5 = GlslArray
+Array6 = GlslArray
+Array7 = GlslArray
+Array8 = GlslArray
+Array9 = GlslArray
+Array10 = GlslArray
+Array11 = GlslArray
+Array12 = GlslArray
+Array13 = GlslArray
+Array14 = GlslArray
+Array15 = GlslArray
+Array16 = GlslArray
 
-
-class HasXYZW(HasXYZ):
-    @property
-    def w(self) -> float:
-        pass
-
-
-class mat2(BuiltinType):
-    pass
-class mat3(BuiltinType):
-    pass
-class mat4(BuiltinType, Mulable):
-    pass
-class vec2(BuiltinType, HasXY):
-    pass
-class vec3(BuiltinType, HasXYZ):
-    pass
-class vec4(BuiltinType, HasXYZW):
-    pass
-class void(BuiltinType):
-    pass
 # TODO
 class noperspective(object):
     pass

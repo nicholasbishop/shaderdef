@@ -67,7 +67,7 @@ def vert_shader(unif: Uniforms, attr: Attributes) -> VsOut:
 
 
 def geom_shader(unif: Uniforms, vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
-    triangle = Array3(vec2)
+    triangle = Array3[vec2]
     triangle[0] = viewport_to_screen_space(unif.fb_size, vs_out[0].gl_position)
     triangle[1] = viewport_to_screen_space(unif.fb_size, vs_out[1].gl_position)
     triangle[2] = viewport_to_screen_space(unif.fb_size, vs_out[2].gl_position)
@@ -101,7 +101,7 @@ def frag_shader(gs_out: GsOut):
                         gs_out.altitudes[2]))
     edge_intensity = float(1.0 - exp2(-1.0 * nearest * nearest))
 
-    color = color * edge_intensity
+    color *= edge_intensity
 
     # TODO, dijkstra viz hack
     dista = float(gs_out.color[0])
