@@ -1,16 +1,16 @@
-from shaderdef.ast_util import parse_class
-from shaderdef.material import create_stages, find_external_links
-from shaderdef.stage import make_prefix
+from shaderdef.ast_util import parse_source
+from shaderdef.stage import Stage, make_prefix
 
 
 class ShaderDef(object):
-    def __init__(self, material):
-        self._material = material
+    def __init__(self, attributes, uniforms, vert_shader,
+                 geom_shader, frag_shader):
+        self._attributes = attributes
+        self._uniforms = uniforms
 
-        self._stages = []
-        self._vert_shader = None
-        self._geom_shader = None
-        self._frag_shader = None
+        self._vert_shader = Stage(vert_shader)
+        self._geom_shader = Stage(geom_shader)
+        self._frag_shader = Stage(frag_shader)
 
     def _thread_deps(self):
         """Link inputs and outputs between stages."""
@@ -22,34 +22,33 @@ class ShaderDef(object):
             prev_stage.provide_deps(stage)
 
     def translate(self):
-        self._stages = list(create_stages(self._material))
-        self._thread_deps()
+        #self._stages = list(self._create_stages())
+        # self._thread_deps()
 
-        external_links = find_external_links(self._material)
+        # external_links = find_external_links(self._material)
 
-        # TODO
-        library = parse_class(self._material.__class__)
-        self._vert_shader = self._stages[0].to_glsl(external_links, library)
-        self._geom_shader = self._stages[1].to_glsl(external_links, library)
-        self._frag_shader = self._stages[2].to_glsl(external_links, library)
+        # # TODO
+        # library = parse_source(self._material.__class__)
+        self._vert_shader.set_uniforms(self._uniforms)
+        self._vert_shader.set_attributes(self._attributes)
+        self._vert_shader.translate()
+        # self._geom_shader = self._stages[1].to_glsl(external_links, library)
+        # self._frag_shader = self._stages[2].to_glsl(external_links, library)
 
     @property
     def vert_shader(self):
-        if self._vert_shader is None:
-            raise ValueError('material has not been translated yet')
-        # TODO: declare inputs/outputs
-        return self._vert_shader
+        return self._vert_shader.glsl
 
     @property
     def geom_shader(self):
         if self._geom_shader is None:
             raise ValueError('material has not been translated yet')
         # TODO: declare inputs/outputs
-        return self._geom_shader
+        return self._glsl_geom_shader
 
     @property
     def frag_shader(self):
         if self._frag_shader is None:
             raise ValueError('material has not been translated yet')
         # TODO: declare inputs/outputs
-        return self._frag_shader
+        return self._glsl_frag_shader

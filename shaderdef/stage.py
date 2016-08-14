@@ -1,15 +1,18 @@
 from ast import fix_missing_locations
+from collections import OrderedDict
 
 from shaderdef.ast_util import (get_function_parameters,
                                 make_assign,
                                 make_self_attr_load,
                                 make_self_attr_store,
-                                parse_class,
+                                parse_source,
                                 remove_function_parameters,
-                                rename_function)
+                                rename_function,
+                                class_fields)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
+from shaderdef.glsl_types import decl_attribute, decl_uniform
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
 
@@ -20,14 +23,27 @@ def make_prefix(name):
 
 
 class Stage(object):
-    def __init__(self, obj, func_name):
-        self.name = func_name
-        root = parse_class(obj)
-        self.ast_root = find_function(root, func_name)
+    def __init__(self, func):
+        self.name = func.__name__
+        root = parse_source(func)
+        self.ast_root = find_function(root, self.name)
         self.input_prefix = ''
         self.output_prefix = make_prefix(self.name)
-        self.parameters = get_function_parameters(self.ast_root,
-                                                  include_self=False)
+        self._glsl_source = None
+        self._uniforms = None
+        self._attributes = None
+        # TODO
+        if 'geom' not in self.name:
+            self.parameters = get_function_parameters(self.ast_root,
+                                                      include_self=False)
+        else:
+            self.parameters = []
+
+    def set_uniforms(self, uniform_cls):
+        self._uniforms = OrderedDict(class_fields(uniform_cls))
+
+    def set_attributes(self, attribute_cls):
+        self._attributes = OrderedDict(class_fields(attribute_cls))
 
     def find_deps(self):
         return find_deps(self.ast_root)
@@ -66,16 +82,15 @@ class Stage(object):
                 names[link] = self.output_prefix + link
         return names
 
-    def declare_uniforms(self, lines, external_links):
-        for link, unif in self.required_uniforms(external_links.uniforms):
-            lines.append(unif.glsl_decl(link))
+    def declare_uniforms(self, lines):
+        # TODO(nicholasbishop): use required_uniforms
+        for key, gtype in self._uniforms.items():
+            lines.append(decl_uniform(key, gtype))
 
-    def declare_attributes(self, lines, external_links):
-        # TODO
-        if self.name != 'vert_shader':
-            return
-        for index, (link, attr) in enumerate(external_links.attributes.items()):
-            lines.append(attr.glsl_decl(link, location=index))
+    def declare_attributes(self, lines):
+        # TODO(nicholasbishop): adjust index for type size
+        for index, (name, gtype) in enumerate(self._attributes.items()):
+            lines.append(decl_attribute(name, gtype, location=index))
 
     def declare_frag_outputs(self, lines, external_links):
         # TODO
@@ -116,15 +131,24 @@ class Stage(object):
             store_names=store_names,
             call_names=call_names)
 
-    def to_glsl(self, external_links, library):
+    @property
+    def glsl(self):
+        if self._glsl_source is None:
+            raise ValueError('shader has not been translated yet')
+        return self._glsl_source
+
+    def translate(self):
+        self._glsl_source = self.to_glsl()
+
+    def to_glsl(self):
         lines = []
         lines.append('#version 330 core')
 
-        self.declare_uniforms(lines, external_links)
-        self.declare_attributes(lines, external_links)
-        self.declare_frag_outputs(lines, external_links)
+        self.declare_uniforms(lines)
+        self.declare_attributes(lines)
+        #self.declare_frag_outputs(lines, external_links)
         self.declare_inputs(lines)
-        self.define_aux_functions(lines, library)
+        #self.define_aux_functions(lines, library)
 
         ast_root = self.ast_root
 
@@ -132,7 +156,7 @@ class Stage(object):
         rename_function(ast_root, 'main')
         remove_function_parameters(ast_root)
 
-        ast_root = self.rename_gl_attributes(ast_root, external_links)
+        #ast_root = self.rename_gl_attributes(ast_root, external_links)
         ast_root = self.rename_gl_builtins(ast_root)
 
         ast_root = unselfify(ast_root)

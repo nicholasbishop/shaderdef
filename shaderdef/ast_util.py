@@ -61,8 +61,8 @@ def append_to_function_body(func_node, new_node):
     func_node.body.append(new_node)
 
 
-def parse_class(cls):
-    src = getsource(cls)
+def parse_source(obj):
+    src = getsource(obj)
     return ast.parse(src)
 
 
@@ -75,3 +75,13 @@ def remove_function_parameters(func_node):
     """Remove all parameters from a function AST node."""
     ensure_node_is_function(func_node)
     func_node.args.args = []
+
+
+def class_fields(cls):
+    src = parse_source(cls)
+    cls_node = src.body[0]
+    for item in cls_node.body:
+        if isinstance(item, ast.Assign):
+            name = item.targets[0].id
+            gtype = item.value.func.id
+            yield name, gtype
