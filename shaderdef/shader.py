@@ -3,11 +3,7 @@ from shaderdef.stage import Stage, make_prefix
 
 
 class ShaderDef(object):
-    def __init__(self, attributes, uniforms, vert_shader,
-                 geom_shader, frag_shader):
-        self._attributes = attributes
-        self._uniforms = uniforms
-
+    def __init__(self, vert_shader, geom_shader, frag_shader):
         self._vert_shader = Stage(vert_shader)
         self._geom_shader = Stage(geom_shader)
         self._frag_shader = Stage(frag_shader)
@@ -29,8 +25,6 @@ class ShaderDef(object):
 
         # # TODO
         # library = parse_source(self._material.__class__)
-        self._vert_shader.set_uniforms(self._uniforms)
-        self._vert_shader.set_attributes(self._attributes)
         self._vert_shader.translate()
         # self._geom_shader = self._stages[1].to_glsl(external_links, library)
         # self._frag_shader = self._stages[2].to_glsl(external_links, library)

@@ -1,5 +1,6 @@
 from ast import fix_missing_locations
 from collections import OrderedDict
+from typing import get_type_hints
 
 from shaderdef.ast_util import (get_function_parameters,
                                 make_assign,
@@ -12,7 +13,6 @@ from shaderdef.ast_util import (get_function_parameters,
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
-from shaderdef.glsl_types import decl_attribute, decl_uniform
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
 
@@ -30,20 +30,10 @@ class Stage(object):
         self.input_prefix = ''
         self.output_prefix = make_prefix(self.name)
         self._glsl_source = None
-        self._uniforms = None
-        self._attributes = None
         # TODO
-        if 'geom' not in self.name:
-            self.parameters = get_function_parameters(self.ast_root,
-                                                      include_self=False)
-        else:
-            self.parameters = []
-
-    def set_uniforms(self, uniform_cls):
-        self._uniforms = OrderedDict(class_fields(uniform_cls))
-
-    def set_attributes(self, attribute_cls):
-        self._attributes = OrderedDict(class_fields(attribute_cls))
+        self._params = get_type_hints(func)
+        # self.parameters = get_function_parameters(self.ast_root,
+        #                                           include_self=False)
 
     def find_deps(self):
         return find_deps(self.ast_root)
@@ -82,15 +72,31 @@ class Stage(object):
                 names[link] = self.output_prefix + link
         return names
 
+    def _get_uniforms_or_attributes(self, func_name):
+        used_names = set()
+        for _, param_type in self._params.items():
+            for var in getattr(param_type, func_name)():
+                if var.name in used_names:
+                    raise KeyError('duplicate attribute or uniform: ' +
+                                   var.name)
+                else:
+                    yield var
+
+    def uniforms(self):
+        yield from self._get_uniforms_or_attributes('uniforms')
+
+    def attributes(self):
+        yield from self._get_uniforms_or_attributes('attributes')
+
     def declare_uniforms(self, lines):
-        # TODO(nicholasbishop): use required_uniforms
-        for key, gtype in self._uniforms.items():
-            lines.append(decl_uniform(key, gtype))
+        # TODO(nicholasbishop): limit to required_uniforms
+        for var in self.uniforms():
+            lines.append(var.declare_uniform())
 
     def declare_attributes(self, lines):
         # TODO(nicholasbishop): adjust index for type size
-        for index, (name, gtype) in enumerate(self._attributes.items()):
-            lines.append(decl_attribute(name, gtype, location=index))
+        for index, var in enumerate(self.attributes()):
+            lines.append(var.declare_attribute(location=index))
 
     def declare_frag_outputs(self, lines, external_links):
         # TODO
@@ -101,8 +107,9 @@ class Stage(object):
 
     def declare_inputs(self, lines):
         # TODO
-        for pname, ptype in self.parameters:
-            lines.append('in {} {};'.format(ptype, pname))
+        pass
+        # for pname, ptype in self.parameters:
+        #     lines.append('in {} {};'.format(ptype, pname))
 
     def define_aux_functions(self, lines, library):
         # TODO

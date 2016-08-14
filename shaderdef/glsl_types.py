@@ -55,21 +55,25 @@ class GlslType(SupportsAbs, SupportsInt, SupportsFloat):
         pass
 
 
-class ShaderInterface(object):
-    def __init__(self, **kwargs):
-        pass
+class GlslVar(object):
+    def __init__(self, name, gtype):
+        self.name = name
+        self.gtype = gtype
 
+    def declare_uniform(self):
+        return 'uniform {} {};'.format(self.gtype, self.name)
 
-def decl_uniform(name, gtype):
-    return 'uniform {} {};'.format(gtype, name)
-
-
-# TODO(nicholasbishop): location
-def decl_attribute(name, gtype, location):
-    return 'in {} {};'.format(gtype, name)
+    def declare_attribute(self, location=None):
+        if location is None:
+            location_str = ''
+        else:
+            location_str = 'layout(location={}) '.format(int(location))
+        return '{}in {} {};'.format(location_str, self.gtype, self.name)
 
 
 # pylint: disable=invalid-name
+Uniform = GlslType
+Attribute = GlslType
 mat2 = GlslType
 mat3 = GlslType
 mat4 = GlslType

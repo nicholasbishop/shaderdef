@@ -3,9 +3,11 @@
 from __future__ import print_function
 from typing import Iterator, Sequence
 
-from shaderdef.glsl_types import (Array3, ShaderInterface, gl_triangles,
-                                  gl_triangle_strip, mat4, noperspective,
-                                  vec2, vec3, vec4)
+from shaderdef import ShaderInterface
+from shaderdef.glsl_types import (Array3, Attribute, Uniform,
+                                  gl_triangles, gl_triangle_strip,
+                                  mat4, noperspective, vec2, vec3,
+                                  vec4)
 from shaderdef.glsl_funcs import (end_primitive, exp2, geom_shader_meta,
                                   length, mod)
 from shaderdef.shader import ShaderDef
@@ -17,11 +19,17 @@ class Attributes(ShaderInterface):
     vert_col = vec4()
 
 
-class Uniforms(ShaderInterface):
-    projection = mat4()
-    camera = mat4()
-    model = mat4()
-    fb_size = vec2()
+class VertAttrs(ShaderInterface):
+    vert_loc = Attribute(vec3())
+    vert_nor = Attribute(vec3())
+    vert_col = Attribute(vec4())
+
+
+class Camera(ShaderInterface):
+    projection = Uniform(mat4())
+    camera = Uniform(mat4())
+    model = Uniform(mat4())
+    fb_size = Uniform(vec2())
 
 
 class VsOut(ShaderInterface):
@@ -65,7 +73,7 @@ def triangle_2d_altitudes(triangle: Array3[vec2]) -> vec3:
                 area / length(ed2))
 
 
-def vert_shader(unif: Uniforms, attr: Attributes) -> VsOut:
+def vert_shader(cam: Camera, attr: VertAttrs) -> VsOut:
     return VsOut(gl_position=perspective_projection(unif.projection,
                                                     unif.camera,
                                                     unif.model,
@@ -77,7 +85,7 @@ def vert_shader(unif: Uniforms, attr: Attributes) -> VsOut:
 @geom_shader_meta(input_primitive=gl_triangles,
                   output_primitive=gl_triangle_strip,
                   max_vertices=3)
-def geom_shader(unif: Uniforms, vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
+def geom_shader(cam: Camera, vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
     triangle = Array3[vec2]
     triangle[0] = viewport_to_screen_space(unif.fb_size, vs_out[0].gl_position)
     triangle[1] = viewport_to_screen_space(unif.fb_size, vs_out[1].gl_position)
@@ -129,12 +137,9 @@ def frag_shader(gs_out: GsOut) -> FsOut:
 
 
 def main():
-    sdef = ShaderDef(
-        attributes=Attributes,
-        uniforms=Uniforms,
-        vert_shader=vert_shader,
-        geom_shader=geom_shader,
-        frag_shader=frag_shader)
+    sdef = ShaderDef(vert_shader=vert_shader,
+                     geom_shader=geom_shader,
+                     frag_shader=frag_shader)
     sdef.translate()
     print(sdef.vert_shader)
     print('---')
