@@ -1,16 +1,14 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 from typing import Iterator, Sequence
 
-from shaderdef import ShaderInterface
+from shaderdef import ShaderDef, ShaderInterface
 from shaderdef.glsl_types import (Array3, Attribute, Uniform,
                                   gl_triangles, gl_triangle_strip,
                                   mat4, noperspective, vec2, vec3,
                                   vec4)
 from shaderdef.glsl_funcs import (end_primitive, exp2, geom_shader_meta,
                                   length, mod)
-from shaderdef.shader import ShaderDef
 
 
 class VertAttrs(ShaderInterface):
