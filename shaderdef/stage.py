@@ -1,9 +1,7 @@
 from ast import fix_missing_locations
-from collections import OrderedDict
 from typing import Iterator, get_type_hints
 
-from shaderdef.ast_util import (get_function_parameters,
-                                make_assign,
+from shaderdef.ast_util import (make_assign,
                                 make_self_attr_load,
                                 make_self_attr_store,
                                 parse_source,

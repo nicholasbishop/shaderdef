@@ -43,7 +43,7 @@ class ShaderInterface(object):
             if gtype == search_name:
                 gtype = value.args[0].func.id
                 yield GlslVar(name, gtype)
-            
+
     @classmethod
     def uniforms(cls):
         yield from cls._get_gtype('Uniform')

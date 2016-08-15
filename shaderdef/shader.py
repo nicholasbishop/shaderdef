@@ -1,4 +1,3 @@
-from shaderdef.ast_util import parse_source
 from shaderdef.stage import Stage, make_prefix
 
 
@@ -8,23 +7,7 @@ class ShaderDef(object):
         self._geom_shader = Stage(geom_shader)
         self._frag_shader = Stage(frag_shader)
 
-    def _thread_deps(self):
-        """Link inputs and outputs between stages."""
-        iter1 = reversed(self._stages)
-        iter2 = reversed(self._stages)
-        next(iter2)
-        for stage, prev_stage in zip(iter1, iter2):
-            stage.input_prefix = make_prefix(prev_stage.name)
-            prev_stage.provide_deps(stage)
-
     def translate(self):
-        #self._stages = list(self._create_stages())
-        # self._thread_deps()
-
-        # external_links = find_external_links(self._material)
-
-        # # TODO
-        # library = parse_source(self._material.__class__)
         self._vert_shader.translate()
         self._geom_shader.translate()
         self._frag_shader.translate()

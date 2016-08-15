@@ -21,7 +21,7 @@ class VertAttrs(ShaderInterface):
 
 # TODO
 class GlGsIn(ShaderInterface):
-    gl_position = vec4();
+    gl_position = vec4()
 
 
 class View(ShaderInterface):
@@ -87,9 +87,9 @@ def vert_shader(view: View, attr: VertAttrs) -> VsOut:
 def geom_shader(view: View, gl_in: Sequence[GlGsIn],
                 vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
     triangle = Array3[vec2]
-    triangle[0] = viewport_to_screen_space(unif.fb_size, gl_in[0].gl_position)
-    triangle[1] = viewport_to_screen_space(unif.fb_size, gl_in[1].gl_position)
-    triangle[2] = viewport_to_screen_space(unif.fb_size, gl_in[2].gl_position)
+    triangle[0] = viewport_to_screen_space(view.fb_size, gl_in[0].gl_position)
+    triangle[1] = viewport_to_screen_space(view.fb_size, gl_in[1].gl_position)
+    triangle[2] = viewport_to_screen_space(view.fb_size, gl_in[2].gl_position)
 
     altitudes = vec3(triangle_2d_altitudes(triangle))
 
