@@ -60,6 +60,9 @@ class GlslVar(object):
         self.name = name
         self.gtype = gtype
 
+    def declare(self):
+        return '{} {};'.format(self.gtype, self.name)
+
     def declare_uniform(self):
         return 'uniform {} {};'.format(self.gtype, self.name)
 
