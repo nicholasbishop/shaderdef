@@ -1,6 +1,6 @@
 from ast import fix_missing_locations
 from collections import OrderedDict
-from typing import get_type_hints
+from typing import Iterator, get_type_hints
 
 from shaderdef.ast_util import (get_function_parameters,
                                 make_assign,
@@ -24,6 +24,14 @@ def make_prefix(name):
     return ''.join(part[0] for part in parts) + '_'
 
 
+def get_output_interface(func):
+    return_type = get_type_hints(func)['return']
+    # Unwrap iterators (used for geom shader output)
+    origin = getattr(return_type, '__origin__', None)
+    if origin is not None and origin == Iterator:
+        return_type = return_type.__parameters__[0]
+    return return_type
+
 class Stage(object):
     def __init__(self, func):
         self.name = func.__name__
@@ -34,9 +42,8 @@ class Stage(object):
         self._glsl_source = None
         # TODO
         self._params = get_type_hints(func)
-        self._return_type = self._params.pop('return')
-        # self.parameters = get_function_parameters(self.ast_root,
-        #                                           include_self=False)
+        del self._params['return']
+        self._return_type = get_output_interface(func)
 
     def find_deps(self):
         return find_deps(self.ast_root)
@@ -78,7 +85,13 @@ class Stage(object):
     def _get_uniforms_or_attributes(self, func_name):
         used_names = set()
         for _, param_type in self._params.items():
-            for var in getattr(param_type, func_name)():
+            getter = getattr(param_type, func_name, None)
+
+            # Branch will be taken for types like "Sequence[VsOut]"
+            if getter is None:
+                continue
+
+            for var in getter():
                 if var.name in used_names:
                     raise KeyError('duplicate attribute or uniform: ' +
                                    var.name)

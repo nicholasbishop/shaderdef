@@ -26,9 +26,20 @@ class _RewriteReturn(ast.NodeTransformer):
     def __init__(self, interface):
         self.interface = interface
 
-    def visit_Return(self, node):
+    def _output_to_list(self, node):
         parent = ast.Name(id=self.interface.instance_name(), ctx=ast.Load())
         return list(kwargs_as_assignments(node.value, parent))
+
+    def visit_Return(self, node):
+        return self._output_to_list(node)
+
+    def visit_Expr(self, node):
+        if isinstance(node.value, ast.Yield):
+            lst = self._output_to_list(node.value)
+            lst.append(ast.parse('EmitVertex()'))
+            return lst
+        else:
+            return node
 
 
 def rewrite_return_as_assignments(func_node, interface):

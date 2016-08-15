@@ -19,6 +19,11 @@ class VertAttrs(ShaderInterface):
     vert_col = Attribute(vec4())
 
 
+# TODO
+class GlGsIn(ShaderInterface):
+    gl_position = vec4();
+
+
 class View(ShaderInterface):
     projection = Uniform(mat4())
     camera = Uniform(mat4())
@@ -79,23 +84,27 @@ def vert_shader(view: View, attr: VertAttrs) -> VsOut:
 @geom_shader_meta(input_primitive=gl_triangles,
                   output_primitive=gl_triangle_strip,
                   max_vertices=3)
-def geom_shader(view: View, vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
+def geom_shader(view: View, gl_in: Sequence[GlGsIn],
+                vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
     triangle = Array3[vec2]
-    triangle[0] = viewport_to_screen_space(unif.fb_size, vs_out[0].gl_position)
-    triangle[1] = viewport_to_screen_space(unif.fb_size, vs_out[1].gl_position)
-    triangle[2] = viewport_to_screen_space(unif.fb_size, vs_out[2].gl_position)
+    triangle[0] = viewport_to_screen_space(unif.fb_size, gl_in[0].gl_position)
+    triangle[1] = viewport_to_screen_space(unif.fb_size, gl_in[1].gl_position)
+    triangle[2] = viewport_to_screen_space(unif.fb_size, gl_in[2].gl_position)
 
     altitudes = vec3(triangle_2d_altitudes(triangle))
 
-    yield GsOut(altitudes=vec3(altitudes[0], 0, 0),
+    yield GsOut(gl_position=gl_in[0].gl_position,
+                altitudes=vec3(altitudes[0], 0, 0),
                 normal=vs_out[0].normal,
                 color=vs_out[0].normal)
 
-    yield GsOut(altitudes=vec3(0, altitudes[0], 0),
+    yield GsOut(gl_position=gl_in[1].gl_position,
+                altitudes=vec3(0, altitudes[0], 0),
                 normal=vs_out[1].normal,
                 color=vs_out[1].normal)
 
-    yield GsOut(altitudes=vec3(0, 0, altitudes[0]),
+    yield GsOut(gl_position=gl_in[2].gl_position,
+                altitudes=vec3(0, 0, altitudes[0]),
                 normal=vs_out[2].normal,
                 color=vs_out[2].normal)
 

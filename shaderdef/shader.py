@@ -26,8 +26,8 @@ class ShaderDef(object):
         # # TODO
         # library = parse_source(self._material.__class__)
         self._vert_shader.translate()
-        # self._geom_shader = self._stages[1].to_glsl(external_links, library)
-        # self._frag_shader = self._stages[2].to_glsl(external_links, library)
+        self._geom_shader.translate()
+        self._frag_shader.translate()
 
     @property
     def vert_shader(self):
@@ -35,14 +35,8 @@ class ShaderDef(object):
 
     @property
     def geom_shader(self):
-        if self._geom_shader is None:
-            raise ValueError('material has not been translated yet')
-        # TODO: declare inputs/outputs
-        return self._glsl_geom_shader
+        return self._geom_shader.glsl
 
     @property
     def frag_shader(self):
-        if self._frag_shader is None:
-            raise ValueError('material has not been translated yet')
-        # TODO: declare inputs/outputs
-        return self._glsl_frag_shader
+        return self._frag_shader.glsl
