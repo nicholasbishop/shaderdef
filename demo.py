@@ -13,19 +13,13 @@ from shaderdef.glsl_funcs import (end_primitive, exp2, geom_shader_meta,
 from shaderdef.shader import ShaderDef
 
 
-class Attributes(ShaderInterface):
-    vert_loc = vec3()
-    vert_nor = vec3()
-    vert_col = vec4()
-
-
 class VertAttrs(ShaderInterface):
     vert_loc = Attribute(vec3())
     vert_nor = Attribute(vec3())
     vert_col = Attribute(vec4())
 
 
-class Camera(ShaderInterface):
+class View(ShaderInterface):
     projection = Uniform(mat4())
     camera = Uniform(mat4())
     model = Uniform(mat4())
@@ -73,10 +67,10 @@ def triangle_2d_altitudes(triangle: Array3[vec2]) -> vec3:
                 area / length(ed2))
 
 
-def vert_shader(cam: Camera, attr: VertAttrs) -> VsOut:
-    return VsOut(gl_position=perspective_projection(unif.projection,
-                                                    unif.camera,
-                                                    unif.model,
+def vert_shader(view: View, attr: VertAttrs) -> VsOut:
+    return VsOut(gl_position=perspective_projection(view.projection,
+                                                    view.camera,
+                                                    view.model,
                                                     attr.vert_loc),
                  normal=attr.vert_nor,
                  color=attr.vert_col)
@@ -85,7 +79,7 @@ def vert_shader(cam: Camera, attr: VertAttrs) -> VsOut:
 @geom_shader_meta(input_primitive=gl_triangles,
                   output_primitive=gl_triangle_strip,
                   max_vertices=3)
-def geom_shader(cam: Camera, vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
+def geom_shader(view: View, vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
     triangle = Array3[vec2]
     triangle[0] = viewport_to_screen_space(unif.fb_size, vs_out[0].gl_position)
     triangle[1] = viewport_to_screen_space(unif.fb_size, vs_out[1].gl_position)

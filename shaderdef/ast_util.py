@@ -77,11 +77,7 @@ def remove_function_parameters(func_node):
     func_node.args.args = []
 
 
-def class_fields(cls):
-    src = parse_source(cls)
-    cls_node = src.body[0]
-    for item in cls_node.body:
-        if isinstance(item, ast.Assign):
-            name = item.targets[0].id
-            gtype = item.value.func.id
-            yield name, gtype
+def remove_function_return_type(func_node):
+    """Remove return type annotation from a function AST node."""
+    ensure_node_is_function(func_node)
+    func_node.returns = None

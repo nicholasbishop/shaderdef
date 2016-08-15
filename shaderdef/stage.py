@@ -8,11 +8,13 @@ from shaderdef.ast_util import (get_function_parameters,
                                 make_self_attr_store,
                                 parse_source,
                                 remove_function_parameters,
-                                rename_function,
-                                class_fields)
+                                remove_function_return_type,
+                                rename_function)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
+from shaderdef.lift_attributes import lift_attributes
+from shaderdef.rewrite_output import rewrite_return_as_assignments
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
 
@@ -32,6 +34,7 @@ class Stage(object):
         self._glsl_source = None
         # TODO
         self._params = get_type_hints(func)
+        self._return_type = self._params.pop('return')
         # self.parameters = get_function_parameters(self.ast_root,
         #                                           include_self=False)
 
@@ -162,9 +165,12 @@ class Stage(object):
         # The main shader function must always be "void main()"
         rename_function(ast_root, 'main')
         remove_function_parameters(ast_root)
+        remove_function_return_type(ast_root)
 
         #ast_root = self.rename_gl_attributes(ast_root, external_links)
         ast_root = self.rename_gl_builtins(ast_root)
+        ast_root = rewrite_return_as_assignments(ast_root)
+        ast_root = lift_attributes(ast_root, self._params.keys())
 
         ast_root = unselfify(ast_root)
         lines += py_to_glsl(ast_root)
