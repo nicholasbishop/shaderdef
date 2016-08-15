@@ -3,7 +3,7 @@
 import ast
 from unittest import TestCase
 
-from shaderdef.ast_util import (get_function_parameters, parse_class,
+from shaderdef.ast_util import (get_function_parameters, parse_source,
                                 remove_function_parameters)
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
@@ -47,7 +47,7 @@ class SimpleClass(object):
 
 class TestFindFunction(TestCase):
     def setUp(self):
-        self.root = parse_class(SimpleClass)
+        self.root = parse_source(SimpleClass)
 
     def test_find_function(self):
         self.assertIsNot(find_function(self.root, 'my_method'), None)
@@ -113,7 +113,7 @@ class TestFindDeps(TestCase):
 
 class TestRemoveFunctionParameters(AstTestCase):
     def setUp(self):
-        self.root = parse_class(SimpleClass)
+        self.root = parse_source(SimpleClass)
 
     def test_remove_all_params(self):
         actual = find_function(self.root, 'method_with_params')
@@ -127,7 +127,7 @@ class TestRemoveFunctionParameters(AstTestCase):
 
 class TestGetFunctionParameters(TestCase):
     def setUp(self):
-        self.root = parse_class(SimpleClass)
+        self.root = parse_source(SimpleClass)
 
     def test_params_and_types(self):
         func = find_function(self.root, 'method_with_params')

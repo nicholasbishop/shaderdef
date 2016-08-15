@@ -1,4 +1,4 @@
-from shaderdef.stage import Stage, make_prefix
+from shaderdef.stage import Stage
 
 
 class ShaderDef(object):

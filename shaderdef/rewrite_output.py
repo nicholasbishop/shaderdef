@@ -13,13 +13,13 @@ def kwargs_as_assignments(call_node, parent):
 
         if dst_name.startswith('gl_'):
             # Write to builtins directly
-            target = ast.Name(id=keyword.arg, ctx=ast.Load())
+            target = [ast.Name(id=keyword.arg, ctx=ast.Load())]
         else:
             # Non-builtins are part of an interface block
-            target = ast.Attribute(value=parent, attr=keyword.arg,
-                                   ctx=ast.Store())
+            target = [ast.Attribute(value=parent, attr=keyword.arg,
+                                    ctx=ast.Store())]
 
-        yield ast.Assign(targets=[target], value=keyword.value)
+        yield ast.Assign(targets=target, value=keyword.value)
 
 
 class _RewriteReturn(ast.NodeTransformer):

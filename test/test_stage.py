@@ -19,7 +19,7 @@ class TestStageUniforms(TestCase):
         my_output = self.my_uniform
 
     def setUp(self):
-        self.stage = Stage(TestStageUniforms, 'simple_stage')
+        self.stage = Stage(self.simple_stage)
         self.links = MockLinks({'my_uniform': Uniform(vec3)})
 
     def test_required_uniforms(self):
@@ -28,9 +28,9 @@ class TestStageUniforms(TestCase):
 
     def test_declare_uniforms(self):
         lines = []
-        self.stage.declare_uniforms(lines, self.links)
+        self.stage.declare_uniforms(lines)
         self.assertEqual(lines, ['uniform vec3 my_uniform;'])
 
     def test_to_glsl(self):
-        text = self.stage.to_glsl(self.links, library=None)
+        text = self.stage.to_glsl()
         self.assertIn('uniform vec3 my_uniform;', text)

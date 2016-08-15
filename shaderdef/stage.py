@@ -30,6 +30,7 @@ def get_output_interface(func):
         return_type = return_type.__parameters__[0]
     return return_type
 
+
 class Stage(object):
     def __init__(self, func):
         self.name = func.__name__
