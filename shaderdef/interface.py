@@ -1,7 +1,7 @@
 import ast
 from shaderdef.ast_util import parse_source
 
-from shaderdef.glsl_types import GlslVar
+from shaderdef.glsl_var import GlslVar
 
 
 def snake_case(string):

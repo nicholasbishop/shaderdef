@@ -55,25 +55,6 @@ class GlslType(SupportsAbs, SupportsInt, SupportsFloat):
         pass
 
 
-class GlslVar(object):
-    def __init__(self, name, gtype):
-        self.name = name
-        self.gtype = gtype
-
-    def declare(self):
-        return '{} {};'.format(self.gtype, self.name)
-
-    def declare_uniform(self):
-        return 'uniform {} {};'.format(self.gtype, self.name)
-
-    def declare_attribute(self, location=None):
-        if location is None:
-            location_str = ''
-        else:
-            location_str = 'layout(location={}) '.format(int(location))
-        return '{}in {} {};'.format(location_str, self.gtype, self.name)
-
-
 # pylint: disable=invalid-name
 Uniform = GlslType
 Attribute = GlslType
