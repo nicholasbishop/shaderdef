@@ -18,6 +18,7 @@ def snake_case(string):
     return output
 
 
+# https://www.opengl.org/wiki/Interface_Block_(GLSL)
 class ShaderInterface(object):
     def __init__(self, **kwargs):
         pass
@@ -53,15 +54,7 @@ class ShaderInterface(object):
 
     @classmethod
     def glsl_declaration(cls, direction):
-        # out VsOut {
-#     vec3 vert_loc;
-# 	vec3 vert_nor;
-# 	vec4 vert_col;
-# } vs_out;
-
-        cls_name = cls.__name__
-
-        yield '{} {} {{'.format(direction, cls_name)
+        yield '{} {} {{'.format(direction, cls.block_name())
 
         for name, value in cls._get_vars():
             # Don't declare builtins
@@ -71,4 +64,12 @@ class ShaderInterface(object):
             gtype = value.func.id
             yield '    ' + GlslVar(name, gtype).declare()
 
-        yield '}} {};'.format(snake_case(cls_name))
+        yield '}} {};'.format(cls.instance_name())
+
+    @classmethod
+    def block_name(cls):
+        return cls.__name__
+
+    @classmethod
+    def instance_name(cls):
+        return snake_case(cls.__name__)

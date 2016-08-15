@@ -169,7 +169,7 @@ class Stage(object):
 
         #ast_root = self.rename_gl_attributes(ast_root, external_links)
         ast_root = self.rename_gl_builtins(ast_root)
-        ast_root = rewrite_return_as_assignments(ast_root)
+        ast_root = rewrite_return_as_assignments(ast_root, self._return_type)
         ast_root = lift_attributes(ast_root, self._params.keys())
         lines += list(self._return_type.glsl_declaration('out'))
 
