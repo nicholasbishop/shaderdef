@@ -133,10 +133,27 @@ class Stage(object):
     def translate(self, library):
         self._glsl_source = self.to_glsl(library)
 
+    def apply_decorators(self):
+        decs = self.ast_root.decorator_list
+        if len(decs) == 1 and decs[0].func.id == 'geom_shader_meta':
+            kwargs = {}
+            for keyword in decs[0].keywords:
+                kwargs[keyword.arg] = keyword.value
+
+            # TODO(nicholasbishop): validate inputs
+            input_primitive = kwargs['input_primitive'].id
+            output_primitive = kwargs['output_primitive'].id
+            max_vertices = int(kwargs['max_vertices'].n)
+
+            yield 'layout({}) in;'.format(input_primitive)
+            yield 'layout({}, max_vertices = {}) out;'.format(output_primitive,
+                                                              max_vertices)
+
     def to_glsl(self, library):
         lines = []
         lines.append('#version 330 core')
 
+        lines += list(self.apply_decorators())
         self.declare_inputs(lines)
         self.define_aux_functions(lines, library)
 
