@@ -1,5 +1,5 @@
 import ast
-
+from shaderdef.glsl_types import ArraySpec
 
 class Code(object):
     def __init__(self, initial_line=None):
@@ -106,21 +106,12 @@ class AstToGlsl(ast.NodeVisitor):
     def get_array_decl(self, node):
         # TODO(nicholasbishop): clean mess up
         target = node.targets[0]
-        if not isinstance(node.value, ast.Subscript):
+        aspec = ArraySpec.from_ast_node(node.value)
+        if aspec is None:
             return None
-        left_node = node.value.value
-        if not isinstance(left_node, ast.Name):
-            return None
-        left = left_node.id
-        if not left.startswith('Array'):
-            return None
-        try:
-            num = int(left[len('Array'):])
-        except ValueError:
-            return None
-        gtype = node.value.slice.value.id
-        return Code('{} {}[{}];'.format(gtype, self.visit(target).one(),
-                                        num))
+        return Code('{} {}[{}]'.format(aspec.element_type,
+                                       self.visit(target).one(),
+                                       aspec.length))
 
     def make_var_decl(self, node):
         target = node.targets[0]

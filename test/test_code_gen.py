@@ -53,4 +53,8 @@ class TestPyToGlsl(TestCase):
 
     def test_local_array(self):
         self.assert_code_equal('arr = Array2[int]',
-                               'int arr[2];')
+                               'int arr[2]')
+
+    def test_array_param(self):
+        self.assert_code_equal('def fn(arr: Array3[int]): pass',
+                               'void fn(int arr[3]) {}')

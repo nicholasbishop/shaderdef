@@ -1,3 +1,4 @@
+import ast
 from typing import (Generic, SupportsAbs, SupportsInt, SupportsFloat,
                     TypeVar)
 from shaderdef.equality import EqualityMixin
@@ -99,6 +100,43 @@ Array13 = GlslArray
 Array14 = GlslArray
 Array15 = GlslArray
 Array16 = GlslArray
+
+
+class ArraySpec(EqualityMixin):
+    """Represents an array declaration.
+
+    This type isn't currently intended to be used by client code
+    directly, it's just a convenient form for internal use.
+    """
+    def __init__(self, element_type, length):
+        self.element_type = element_type
+        self.length = length
+
+    def __repr__(self):
+        return 'ArraySpec({}, {})'.format(self.element_type, self.length)
+
+    @classmethod
+    def from_ast_node(cls, node):
+        """Create a GlslArray from an AST node if possible.
+
+        If the node cannot be converted then None is returned.
+        """
+        if not isinstance(node, ast.Subscript):
+            return None
+        if not isinstance(node.value, ast.Name):
+            return None
+        name = node.value.id
+        prefix = 'Array'
+        if not name.startswith(prefix):
+            return None
+        try:
+            num = int(name[len(prefix):])
+        except ValueError:
+            return None
+        if not isinstance(node.slice.value, ast.Name):
+            return None
+        gtype = node.slice.value.id
+        return cls(gtype, num)
 
 
 # TODO
