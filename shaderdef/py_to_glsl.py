@@ -96,10 +96,26 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_Attribute(self, node):
         return Code('{}.{}'.format(self.visit(node.value).one(), node.attr))
 
+    @staticmethod
+    def is_var_decl(node):
+        target = node.targets[0]
+        return (isinstance(target, ast.Name) and
+                not target.id.startswith('gl_') and
+                isinstance(node.value, ast.Call))
+
+    def make_var_decl(self, node):
+        target = node.targets[0]
+        gtype = node.value.func.id
+        return Code('{} {} = {}'.format(gtype,
+                                        self.visit(target).one(),
+                                        self.visit(node.value).one()))
+
     def visit_Assign(self, node):
         if len(node.targets) != 1:
             raise ValueError('multiple assignment targets not allowed', node)
         target = node.targets[0]
+        if self.is_var_decl(node):
+            return self.make_var_decl(node)
         return Code('{} = {}'.format(self.visit(target).one(),
                                      self.visit(node.value).one()))
 

@@ -46,3 +46,7 @@ class TestPyToGlsl(TestCase):
     def test_nested_blocks(self):
         self.assert_code_equal('if a:\n if b: a = b',
                                'if (a) {if (b) {a = b;}}')
+
+    def test_local_var(self):
+        self.assert_code_equal('myvar = vec3(0, 0, 0)',
+                               'vec3 myvar = vec3(0, 0, 0)')
