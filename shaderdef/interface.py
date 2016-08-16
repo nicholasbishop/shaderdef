@@ -91,7 +91,16 @@ class UniformBlock(ShaderInterface):
 
 
 class AttributeBlock(ShaderInterface):
-    pass
+    # For whatever reason GLSL doesn't allow attributes to be
+    # aggregated into an interface block
+    @classmethod
+    def declare_input_block(cls, instance_name=None):
+        location = 0
+        for member in cls._get_vars():
+            # TODO(nicholasbishop): correctly handle type size when
+            # incrementing location
+            yield member.declare_attribute(location)
+            location += 1
 
 
 # TODO, builtin

@@ -11,6 +11,8 @@ from shaderdef.ast_util import (make_assign,
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
+from shaderdef.interface import AttributeBlock
+from shaderdef.lift_attributes import lift_attributes
 from shaderdef.rewrite_output import rewrite_return_as_assignments
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
@@ -167,6 +169,11 @@ class Stage(object):
         #ast_root = self.rename_gl_attributes(ast_root, external_links)
         ast_root = self.rename_gl_builtins(ast_root)
         ast_root = rewrite_return_as_assignments(ast_root, self._return_type)
+        ast_root = lift_attributes(ast_root, [
+            param_name
+            for param_name, param_type in self._params.items()
+            if issubclass(param_type, AttributeBlock)
+        ])
 
         if self._return_type is not None:
             lines += self._return_type.declare_output_block()
