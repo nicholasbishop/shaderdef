@@ -23,7 +23,9 @@ def make_prefix(name):
 
 
 def get_output_interface(func):
-    return_type = get_type_hints(func)['return']
+    return_type = get_type_hints(func).get('return')
+    if return_type is None:
+        return None
     # Unwrap iterators (used for geom shader output)
     origin = getattr(return_type, '__origin__', None)
     if origin is not None and origin == Iterator:
@@ -41,7 +43,7 @@ class Stage(object):
         self._glsl_source = None
         # TODO
         self._params = get_type_hints(func)
-        del self._params['return']
+        self._params.pop('return', None)
         self._return_type = get_output_interface(func)
 
     def find_deps(self):
@@ -183,7 +185,9 @@ class Stage(object):
         ast_root = self.rename_gl_builtins(ast_root)
         ast_root = rewrite_return_as_assignments(ast_root, self._return_type)
         ast_root = lift_attributes(ast_root, self._params.keys())
-        lines += list(self._return_type.glsl_declaration('out'))
+
+        if self._return_type is not None:
+            lines += list(self._return_type.glsl_declaration('out'))
 
         ast_root = unselfify(ast_root)
         lines += py_to_glsl(ast_root)

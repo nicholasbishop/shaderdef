@@ -1,11 +1,15 @@
 from unittest import TestCase
 
-from shaderdef.glsl_types import FragOutput, vec4
+from shaderdef.glsl_types import vec4
+from shaderdef.interface import ShaderInterface
 from shaderdef.shader import ShaderDef
 from test.util import deindent
 
 
 class MyMaterial(object):
+    class FsOut(ShaderInterface):
+        color = vec4()
+
     def __init__(self):
         self.color = FragOutput(vec4)
 
@@ -15,8 +19,8 @@ class MyMaterial(object):
     def geom_shader(self):
         pass
 
-    def frag_shader(self):
-        self.color = vec4(1.0, 0.0, 0.0, 1.0)
+    def frag_shader(self) -> 'MyMaterial.FsOut':
+        return MyMaterial.FsOut(color=vec4(1.0, 0.0, 0.0, 1.0))
 
 
 class TestShader(TestCase):
@@ -30,5 +34,7 @@ class TestShader(TestCase):
                          'void main() {}')
         self.assertEqual(deindent(shader.frag_shader),
                          '#version 330 core'
-                         'out vec4 color;'
-                         'void main() {color = vec4(1.0, 0.0, 0.0, 1.0);}')
+                         'out FsOut {'
+                         'vec4 color;'
+                         '} fs_out;'
+                         'void main() {fs_out.color = vec4(1.0, 0.0, 0.0, 1.0);}')

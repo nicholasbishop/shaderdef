@@ -61,8 +61,24 @@ def append_to_function_body(func_node, new_node):
     func_node.body.append(new_node)
 
 
+def dedent(lines):
+    """De-indent based on the first line's indentation."""
+    if len(lines) != 0:
+        first_lstrip = lines[0].lstrip()
+        strip_len = len(lines[0]) - len(first_lstrip)
+        for line in lines:
+            if len(line[:strip_len].strip()) != 0:
+                raise ValueError('less indentation than first line: ' +
+                                 line)
+            else:
+                yield line[strip_len:]
+
+
 def parse_source(obj):
     src = getsource(obj)
+    # TODO(nicholasbishop): this probably doesn't belong here, but
+    # it's helpful in the unit tests at least.
+    src = '\n'.join(dedent(src.splitlines()))
     return ast.parse(src)
 
 
