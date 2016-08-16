@@ -129,12 +129,11 @@ class Stage(object):
         #     lines.append('in {} {};'.format(ptype, pname))
 
     def define_aux_functions(self, lines, library):
-        # TODO
-        for func_name in self.find_deps().calls:
-            if func_name == 'emit_vertex':
-                continue
-            auxfunc = find_function(library, func_name)
-            lines += py_to_glsl(auxfunc)
+        # TODO(nicholasbishop): for now we don't attempt to check if
+        # the function is actually used, just define them all
+        for func in library:
+            func_node = parse_source(func)
+            lines += py_to_glsl(func_node)
 
     def rename_gl_attributes(self, ast_root, external_links):
         return rename_attributes(
@@ -161,10 +160,10 @@ class Stage(object):
             raise ValueError('shader has not been translated yet')
         return self._glsl_source
 
-    def translate(self):
-        self._glsl_source = self.to_glsl()
+    def translate(self, library):
+        self._glsl_source = self.to_glsl(library)
 
-    def to_glsl(self):
+    def to_glsl(self, library):
         lines = []
         lines.append('#version 330 core')
 
@@ -172,7 +171,7 @@ class Stage(object):
         self.declare_attributes(lines)
         #self.declare_frag_outputs(lines, external_links)
         self.declare_inputs(lines)
-        #self.define_aux_functions(lines, library)
+        self.define_aux_functions(lines, library)
 
         ast_root = self.ast_root
 

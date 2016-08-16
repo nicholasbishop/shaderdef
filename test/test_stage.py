@@ -30,5 +30,17 @@ class TestStageUniforms(TestCase):
         self.assertEqual(lines, ['uniform vec3 my_uniform;'])
 
     def test_to_glsl(self):
-        text = self.stage.to_glsl()
+        text = self.stage.to_glsl([])
         self.assertIn('uniform vec3 my_uniform;', text)
+
+class TestAuxFunction(TestCase):
+    def test_library(self):
+        def simple_stage():
+            pass
+
+        def aux(self):
+            pass
+
+        stage = Stage(simple_stage)
+        code = stage.to_glsl([aux])
+        self.assertIn('void aux() {', code)

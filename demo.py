@@ -141,6 +141,9 @@ def main():
     sdef = ShaderDef(vert_shader=vert_shader,
                      geom_shader=geom_shader,
                      frag_shader=frag_shader)
+    sdef.add_function(perspective_projection)
+    sdef.add_function(viewport_to_screen_space)
+    sdef.add_function(triangle_2d_altitudes)
     sdef.translate()
     print(sdef.vert_shader)
     print('---')

@@ -54,7 +54,7 @@ def op_symbol(op_node):
 
 
 class AstToGlsl(ast.NodeVisitor):
-    # pylint: disable=invalid-name
+    # pylint: disable=invalid-name,too-many-public-methods
     def visit_Module(self, node):
         if len(node.body) != 1:
             raise NotImplementedError()
@@ -155,6 +155,9 @@ class AstToGlsl(ast.NodeVisitor):
 
     def visit_Expr(self, node):
         return self.visit(node.value)
+
+    def visit_Str(self, node):
+        return Code()
 
     def visit_UnaryOp(self, node):
         return Code('{}{}'.format(op_symbol(node.op),

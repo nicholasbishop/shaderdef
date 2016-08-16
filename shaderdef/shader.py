@@ -6,11 +6,15 @@ class ShaderDef(object):
         self._vert_shader = Stage(vert_shader)
         self._geom_shader = Stage(geom_shader)
         self._frag_shader = Stage(frag_shader)
+        self._library = []
+
+    def add_function(self, func):
+        self._library.append(func)
 
     def translate(self):
-        self._vert_shader.translate()
-        self._geom_shader.translate()
-        self._frag_shader.translate()
+        self._vert_shader.translate(self._library)
+        self._geom_shader.translate(self._library)
+        self._frag_shader.translate(self._library)
 
     @property
     def vert_shader(self):
