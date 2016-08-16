@@ -107,12 +107,6 @@ class Stage(object):
             func_node = parse_source(func)
             lines += py_to_glsl(func_node)
 
-    def rename_gl_attributes(self, ast_root, external_links):
-        return rename_attributes(
-            ast_root,
-            load_names=self.load_names(external_links),
-            store_names=self.store_names(external_links))
-
     @staticmethod
     def rename_gl_builtins(ast_root):
         store_names = {
@@ -166,7 +160,6 @@ class Stage(object):
         remove_function_parameters(ast_root)
         remove_function_return_type(ast_root)
 
-        #ast_root = self.rename_gl_attributes(ast_root, external_links)
         ast_root = self.rename_gl_builtins(ast_root)
         ast_root = rewrite_return_as_assignments(ast_root, self._return_type)
         ast_root = lift_attributes(ast_root, [
