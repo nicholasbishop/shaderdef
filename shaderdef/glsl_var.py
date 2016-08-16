@@ -20,7 +20,7 @@ class GlslVar(object):
         if location is None:
             location_str = None
         else:
-            location_str = 'layout(location={}) '.format(int(location))
+            location_str = 'layout(location={})'.format(int(location))
 
         return _gdecl(location_str, self.interpolation, 'in', self.gtype,
                       self.name)
