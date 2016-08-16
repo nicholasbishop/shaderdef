@@ -103,6 +103,25 @@ class AstToGlsl(ast.NodeVisitor):
                 not target.id.startswith('gl_') and
                 isinstance(node.value, ast.Call))
 
+    def get_array_decl(self, node):
+        # TODO(nicholasbishop): clean mess up
+        target = node.targets[0]
+        if not isinstance(node.value, ast.Subscript):
+            return None
+        left_node = node.value.value
+        if not isinstance(left_node, ast.Name):
+            return None
+        left = left_node.id
+        if not left.startswith('Array'):
+            return None
+        try:
+            num = int(left[len('Array'):])
+        except ValueError:
+            return None
+        gtype = node.value.slice.value.id
+        return Code('{} {}[{}];'.format(gtype, self.visit(target).one(),
+                                        num))
+
     def make_var_decl(self, node):
         target = node.targets[0]
         gtype = node.value.func.id
@@ -116,6 +135,9 @@ class AstToGlsl(ast.NodeVisitor):
         target = node.targets[0]
         if self.is_var_decl(node):
             return self.make_var_decl(node)
+        adecl = self.get_array_decl(node)
+        if adecl is not None:
+            return adecl
         return Code('{} = {}'.format(self.visit(target).one(),
                                      self.visit(node.value).one()))
 

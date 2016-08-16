@@ -50,3 +50,7 @@ class TestPyToGlsl(TestCase):
     def test_local_var(self):
         self.assert_code_equal('myvar = vec3(0, 0, 0)',
                                'vec3 myvar = vec3(0, 0, 0)')
+
+    def test_local_array(self):
+        self.assert_code_equal('arr = Array2[int]',
+                               'int arr[2];')
