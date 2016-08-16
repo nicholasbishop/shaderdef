@@ -12,7 +12,7 @@ from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
 from shaderdef.interface import AttributeBlock
 from shaderdef.lift_attributes import lift_attributes
-from shaderdef.rename_ast_nodes import rename_ast_nodes
+from shaderdef.rename_ast_nodes import rename_gl_builtins
 from shaderdef.rewrite_output import rewrite_return_as_assignments
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
@@ -110,12 +110,6 @@ class Stage(object):
             func_node = parse_source(func)
             lines += py_to_glsl(func_node)
 
-    @staticmethod
-    def rename_gl_builtins(ast_root):
-        return rename_ast_nodes(ast_root, {
-            'gl_position': 'gl_Position',
-        })
-
     @property
     def glsl(self):
         if self._glsl_source is None:
@@ -162,7 +156,7 @@ class Stage(object):
             for param_name, param_type in self._params.items()
             if issubclass(param_type, AttributeBlock)
         ])
-        ast_root = self.rename_gl_builtins(ast_root)
+        ast_root = rename_gl_builtins(ast_root)
 
         if self._return_type is not None:
             lines += self._return_type.declare_output_block()

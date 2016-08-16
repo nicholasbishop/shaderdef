@@ -9,14 +9,7 @@ from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
 from shaderdef.unselfify import unselfify
-
-
-class AstTestCase(TestCase):
-    def assertEqual(self, left, right, msg=None):
-        if isinstance(left, ast.AST) and isinstance(right, ast.AST):
-            left = ast.dump(left)
-            right = ast.dump(right)
-        return super(AstTestCase, self).assertEqual(left, right, msg)
+from test.util import AstTestCase
 
 
 class TestUnselfify(AstTestCase):
