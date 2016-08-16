@@ -7,11 +7,10 @@ from test.util import deindent
 
 
 class MyMaterial(object):
+    # pylint: disable=no-self-use
+
     class FsOut(ShaderInterface):
         color = vec4()
-
-    def __init__(self):
-        self.color = FragOutput(vec4)
 
     def vert_shader(self):
         pass
