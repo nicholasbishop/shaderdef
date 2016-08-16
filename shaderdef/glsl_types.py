@@ -140,8 +140,8 @@ class ArraySpec(EqualityMixin):
 
 
 # TODO
-gl_triangles = 'gl_triangles'
-gl_triangle_strip = 'gl_triangle_strip'
+triangles = 'triangles'
+triangle_strip = 'triangle_strip'
 
 
 # TODO

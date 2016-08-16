@@ -4,9 +4,9 @@ from typing import Iterator, Sequence
 
 from shaderdef import (AttributeBlock, GlGsIn, ShaderDef,
                        ShaderInterface, UniformBlock)
-from shaderdef.glsl_types import (Array3, gl_triangles,
-                                  gl_triangle_strip, mat4,
-                                  noperspective, vec2, vec3, vec4)
+from shaderdef.glsl_types import (Array3, triangles, triangle_strip,
+                                  mat4, noperspective, vec2, vec3,
+                                  vec4)
 from shaderdef.glsl_funcs import (end_primitive, exp2, geom_shader_meta,
                                   length, mod)
 
@@ -74,8 +74,8 @@ def vert_shader(view: View, attr: VertAttrs) -> VsOut:
                  color=attr.vert_col)
 
 
-@geom_shader_meta(input_primitive=gl_triangles,
-                  output_primitive=gl_triangle_strip,
+@geom_shader_meta(input_primitive=triangles,
+                  output_primitive=triangle_strip,
                   max_vertices=3)
 def geom_shader(view: View, gl_in: Sequence[GlGsIn],
                 vs_out: Sequence[VsOut]) -> Iterator[GsOut]:
