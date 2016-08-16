@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from shaderdef.glsl_types import Uniform, vec3
+from shaderdef.interface import ShaderInterface
 from shaderdef.stage import Stage, make_prefix
 
 class TestMakePrefix(TestCase):
@@ -14,17 +15,14 @@ class MockLinks(object):
 
 
 class TestStageUniforms(TestCase):
-    def simple_stage(self):
-        # pylint: disable=no-member,unused-variable
-        my_output = self.my_uniform
+    class MyUnif(ShaderInterface):
+        my_uniform = Uniform(vec3())
+
+    def simple_stage(self, unif: MyUnif):
+        pass
 
     def setUp(self):
         self.stage = Stage(self.simple_stage)
-        self.links = MockLinks({'my_uniform': Uniform(vec3)})
-
-    def test_required_uniforms(self):
-        unifs = self.stage.required_uniforms(self.links.uniforms)
-        self.assertEqual(list(unifs), [('my_uniform', Uniform(vec3))])
 
     def test_declare_uniforms(self):
         lines = []
