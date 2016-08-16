@@ -62,7 +62,10 @@ class ShaderInterface(object):
                 continue
 
             gtype = value.func.id
-            yield '    ' + GlslVar(name, gtype).declare()
+            interp = None
+            if len(value.args) == 1:
+                interp = value.args[0].id
+            yield '    ' + GlslVar(name, gtype, interp).declare()
 
         yield '}} {};'.format(cls.instance_name())
 
