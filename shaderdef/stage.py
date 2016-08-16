@@ -97,7 +97,8 @@ class Stage(object):
                 param_type = param_type.__parameters__[0]
             lines += param_type.declare_input_block(instance_name=name)
 
-    def define_aux_functions(self, lines, library):
+    @staticmethod
+    def define_aux_functions(lines, library):
         # TODO(nicholasbishop): for now we don't attempt to check if
         # the function is actually used, just define them all
         for func in library:

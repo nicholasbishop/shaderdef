@@ -157,6 +157,7 @@ class AstToGlsl(ast.NodeVisitor):
         return self.visit(node.value)
 
     def visit_Str(self, node):
+        # pylint: disable=no-self-use,unused-argument
         return Code()
 
     def visit_UnaryOp(self, node):
