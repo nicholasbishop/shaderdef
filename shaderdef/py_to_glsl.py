@@ -86,6 +86,11 @@ class AstToGlsl(ast.NodeVisitor):
     def visit_arg(self, node):
         if node.annotation is None:
             raise ValueError('untyped argument: {}'.format(ast.dump(node)))
+        adecl = ArraySpec.from_ast_node(node.annotation)
+        if adecl is not None:
+            return Code('{} {}[{}]'.format(adecl.element_type, node.arg,
+                                           adecl.length))
+
         gtype = self.visit(node.annotation).one()
         return Code('{} {}'.format(gtype, node.arg))
 
