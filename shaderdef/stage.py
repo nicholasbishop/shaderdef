@@ -1,5 +1,5 @@
 from ast import fix_missing_locations
-from typing import Iterator, get_type_hints
+from typing import Iterator, Sequence, get_type_hints
 
 from shaderdef.ast_util import (make_assign,
                                 make_self_attr_load,
@@ -11,7 +11,6 @@ from shaderdef.ast_util import (make_assign,
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
-from shaderdef.lift_attributes import lift_attributes
 from shaderdef.rewrite_output import rewrite_return_as_assignments
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
@@ -83,38 +82,6 @@ class Stage(object):
                 names[link] = self.output_prefix + link
         return names
 
-    def _get_uniforms_or_attributes(self, func_name):
-        used_names = set()
-        for _, param_type in self._params.items():
-            getter = getattr(param_type, func_name, None)
-
-            # Branch will be taken for types like "Sequence[VsOut]"
-            if getter is None:
-                continue
-
-            for var in getter():
-                if var.name in used_names:
-                    raise KeyError('duplicate attribute or uniform: ' +
-                                   var.name)
-                else:
-                    yield var
-
-    def uniforms(self):
-        yield from self._get_uniforms_or_attributes('uniforms')
-
-    def attributes(self):
-        yield from self._get_uniforms_or_attributes('attributes')
-
-    def declare_uniforms(self, lines):
-        # TODO(nicholasbishop): limit to required_uniforms
-        for var in self.uniforms():
-            lines.append(var.declare_uniform())
-
-    def declare_attributes(self, lines):
-        # TODO(nicholasbishop): adjust index for type size
-        for index, var in enumerate(self.attributes()):
-            lines.append(var.declare_attribute(location=index))
-
     def declare_frag_outputs(self, lines, external_links):
         # TODO
         if self.name != 'frag_shader':
@@ -123,10 +90,12 @@ class Stage(object):
             lines.append(fout.glsl_decl(link))
 
     def declare_inputs(self, lines):
-        # TODO
-        pass
-        # for pname, ptype in self.parameters:
-        #     lines.append('in {} {};'.format(ptype, pname))
+        for name, param_type in self._params.items():
+            # TODO(nicholasbishop): dedup with return type
+            origin = getattr(param_type, '__origin__', None)
+            if origin is not None and origin == Sequence:
+                param_type = param_type.__parameters__[0]
+            lines += param_type.declare_input_block(instance_name=name)
 
     def define_aux_functions(self, lines, library):
         # TODO(nicholasbishop): for now we don't attempt to check if
@@ -167,9 +136,6 @@ class Stage(object):
         lines = []
         lines.append('#version 330 core')
 
-        self.declare_uniforms(lines)
-        self.declare_attributes(lines)
-        #self.declare_frag_outputs(lines, external_links)
         self.declare_inputs(lines)
         self.define_aux_functions(lines, library)
 
@@ -183,10 +149,9 @@ class Stage(object):
         #ast_root = self.rename_gl_attributes(ast_root, external_links)
         ast_root = self.rename_gl_builtins(ast_root)
         ast_root = rewrite_return_as_assignments(ast_root, self._return_type)
-        ast_root = lift_attributes(ast_root, self._params.keys())
 
         if self._return_type is not None:
-            lines += list(self._return_type.glsl_declaration('out'))
+            lines += self._return_type.declare_output_block()
 
         ast_root = unselfify(ast_root)
         lines += py_to_glsl(ast_root)

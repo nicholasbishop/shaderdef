@@ -56,8 +56,6 @@ class GlslType(SupportsAbs, SupportsInt, SupportsFloat):
 
 
 # pylint: disable=invalid-name
-Uniform = GlslType
-Attribute = GlslType
 mat2 = GlslType
 mat3 = GlslType
 mat4 = GlslType

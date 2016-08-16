@@ -18,6 +18,21 @@ def snake_case(string):
     return output
 
 
+def _declare_block(block_type, block_name, instance_name, members):
+    # TODO
+    assert len(members) != 0
+    assert block_type in ('in', 'out', 'uniform')
+
+    yield '{} {} {{'.format(block_type, block_name)
+
+    for member in members:
+        # TODO
+        assert not member.name.startswith('gl_')
+        yield '    ' + member.declare()
+
+    yield '}} {};'.format(instance_name)
+
+
 # https://www.opengl.org/wiki/Interface_Block_(GLSL)
 class ShaderInterface(object):
     def __init__(self, **kwargs):
@@ -33,41 +48,32 @@ class ShaderInterface(object):
         for item in cls_node.body:
             if isinstance(item, ast.Assign):
                 name = item.targets[0].id
-                value = item.value
-                yield name, value
+                # Ignore builtins
+                if name.startswith('gl_'):
+                    continue
+                gtype = item.value.func.id
+                interp = None
+                if len(item.value.args) == 1:
+                    interp = item.value.args[0].id
+                yield GlslVar(name, gtype, interpolation=interp)
 
     @classmethod
-    def _get_gtype(cls, search_name):
-        for name, value in cls._get_vars():
-            gtype = value.func.id
-            if gtype == search_name:
-                gtype = value.args[0].func.id
-                yield GlslVar(name, gtype)
+    def _declare_block(cls, instance_name, block_type):
+        members = list(cls._get_vars())
+        if len(members) == 0:
+            return []
+        else:
+            return list(_declare_block(block_type, cls.block_name(),
+                                       instance_name, members))
 
     @classmethod
-    def uniforms(cls):
-        yield from cls._get_gtype('Uniform')
+    def declare_input_block(cls, instance_name):
+        return cls._declare_block(instance_name, 'in')
 
     @classmethod
-    def attributes(cls):
-        yield from cls._get_gtype('Attribute')
-
-    @classmethod
-    def glsl_declaration(cls, direction):
-        yield '{} {} {{'.format(direction, cls.block_name())
-
-        for name, value in cls._get_vars():
-            # Don't declare builtins
-            if name.startswith('gl_'):
-                continue
-
-            gtype = value.func.id
-            interp = None
-            if len(value.args) == 1:
-                interp = value.args[0].id
-            yield '    ' + GlslVar(name, gtype, interp).declare()
-
-        yield '}} {};'.format(cls.instance_name())
+    def declare_output_block(cls):
+        instance_name = snake_case(cls.instance_name())
+        return cls._declare_block(instance_name, 'out')
 
     @classmethod
     def block_name(cls):
@@ -76,3 +82,13 @@ class ShaderInterface(object):
     @classmethod
     def instance_name(cls):
         return snake_case(cls.__name__)
+
+
+class UniformBlock(ShaderInterface):
+    @classmethod
+    def declare_input_block(cls, instance_name):
+        return cls._declare_block(instance_name, 'uniform')
+
+
+class AttributeBlock(ShaderInterface):
+    pass

@@ -2,19 +2,19 @@
 
 from typing import Iterator, Sequence
 
-from shaderdef import ShaderDef, ShaderInterface
-from shaderdef.glsl_types import (Array3, Attribute, Uniform,
-                                  gl_triangles, gl_triangle_strip,
-                                  mat4, noperspective, vec2, vec3,
-                                  vec4)
+from shaderdef import (AttributeBlock, ShaderDef, ShaderInterface,
+                       UniformBlock)
+from shaderdef.glsl_types import (Array3, gl_triangles,
+                                  gl_triangle_strip, mat4,
+                                  noperspective, vec2, vec3, vec4)
 from shaderdef.glsl_funcs import (end_primitive, exp2, geom_shader_meta,
                                   length, mod)
 
 
-class VertAttrs(ShaderInterface):
-    vert_loc = Attribute(vec3())
-    vert_nor = Attribute(vec3())
-    vert_col = Attribute(vec4())
+class VertAttrs(AttributeBlock):
+    vert_loc = vec3()
+    vert_nor = vec3()
+    vert_col = vec4()
 
 
 # TODO
@@ -22,11 +22,11 @@ class GlGsIn(ShaderInterface):
     gl_position = vec4()
 
 
-class View(ShaderInterface):
-    projection = Uniform(mat4())
-    camera = Uniform(mat4())
-    model = Uniform(mat4())
-    fb_size = Uniform(vec2())
+class View(UniformBlock):
+    projection = mat4()
+    camera = mat4()
+    model = mat4()
+    fb_size = vec2()
 
 
 class VsOut(ShaderInterface):

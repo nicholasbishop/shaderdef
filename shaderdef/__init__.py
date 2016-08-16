@@ -1,3 +1,3 @@
 from shaderdef.glsl_var import GlslVar
-from shaderdef.interface import ShaderInterface
+from shaderdef.interface import AttributeBlock, ShaderInterface, UniformBlock
 from shaderdef.shader import ShaderDef
