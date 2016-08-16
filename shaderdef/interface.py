@@ -2,7 +2,7 @@ import ast
 from shaderdef.ast_util import parse_source
 
 from shaderdef.glsl_var import GlslVar
-
+from shaderdef.glsl_types import vec4
 
 def snake_case(string):
     output = ''
@@ -92,3 +92,8 @@ class UniformBlock(ShaderInterface):
 
 class AttributeBlock(ShaderInterface):
     pass
+
+
+# TODO, builtin
+class GlGsIn(ShaderInterface):
+    gl_position = vec4()

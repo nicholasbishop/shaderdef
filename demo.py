@@ -2,8 +2,8 @@
 
 from typing import Iterator, Sequence
 
-from shaderdef import (AttributeBlock, ShaderDef, ShaderInterface,
-                       UniformBlock)
+from shaderdef import (AttributeBlock, GlGsIn, ShaderDef,
+                       ShaderInterface, UniformBlock)
 from shaderdef.glsl_types import (Array3, gl_triangles,
                                   gl_triangle_strip, mat4,
                                   noperspective, vec2, vec3, vec4)
@@ -15,11 +15,6 @@ class VertAttrs(AttributeBlock):
     vert_loc = vec3()
     vert_nor = vec3()
     vert_col = vec4()
-
-
-# TODO
-class GlGsIn(ShaderInterface):
-    gl_position = vec4()
 
 
 class View(UniformBlock):
