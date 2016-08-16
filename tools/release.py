@@ -8,6 +8,7 @@ import sys
 
 from tools.version_util import (SCRIPT_DIR, VERSION_PATH,
                                 load_version_as_list,
+                                load_version_as_string,
                                 format_version_string)
 
 
@@ -45,6 +46,12 @@ def push_branch():
     run_cmd('git', 'push')
 
 
+def push_tag():
+    version = load_version_as_string()
+    run_cmd('git', 'tag', version)
+    run_cmd('git', 'push', '--tags')
+
+
 def sdist_and_upload():
     setup_py_path = os.path.join(SCRIPT_DIR, '../setup.py')
     run_cmd(sys.executable, setup_py_path, 'sdist', 'upload')
@@ -55,6 +62,7 @@ def main():
     bump_minor_version()
     commit_version()
     push_branch()
+    push_tag()
     sdist_and_upload()
 
 
