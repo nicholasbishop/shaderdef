@@ -95,9 +95,12 @@ class Stage(object):
         for name, param_type in self._params.items():
             # TODO(nicholasbishop): dedup with return type
             origin = getattr(param_type, '__origin__', None)
+            array = None
             if origin is not None and origin == Sequence:
                 param_type = param_type.__parameters__[0]
-            lines += param_type.declare_input_block(instance_name=name)
+                array = True
+            lines += param_type.declare_input_block(instance_name=name,
+                                                    array=array)
 
     @staticmethod
     def define_aux_functions(lines, library):

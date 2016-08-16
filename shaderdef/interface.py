@@ -18,10 +18,18 @@ def snake_case(string):
     return output
 
 
-def _declare_block(block_type, block_name, instance_name, members):
+def _declare_block(block_type, block_name, instance_name, members,
+                   array):
     # TODO
     assert len(members) != 0
     assert block_type in ('in', 'out', 'uniform')
+
+    array_string = ''
+    if array is not None:
+        if isinstance(array, bool):
+            array_string = '[]'
+        else:
+            raise NotImplementedError('only unsized arrays are supported')
 
     yield '{} {} {{'.format(block_type, block_name)
 
@@ -30,7 +38,7 @@ def _declare_block(block_type, block_name, instance_name, members):
         assert not member.name.startswith('gl_')
         yield '    ' + member.declare()
 
-    yield '}} {};'.format(instance_name)
+    yield '}} {}{};'.format(instance_name, array_string)
 
 
 # https://www.opengl.org/wiki/Interface_Block_(GLSL)
@@ -58,22 +66,22 @@ class ShaderInterface(object):
                 yield GlslVar(name, gtype, interpolation=interp)
 
     @classmethod
-    def _declare_block(cls, instance_name, block_type):
+    def _declare_block(cls, instance_name, block_type, array=None):
         members = list(cls._get_vars())
         if len(members) == 0:
             return []
         else:
             return list(_declare_block(block_type, cls.block_name(),
-                                       instance_name, members))
+                                       instance_name, members, array))
 
     @classmethod
-    def declare_input_block(cls, instance_name):
-        return cls._declare_block(instance_name, 'in')
+    def declare_input_block(cls, instance_name, array=None):
+        return cls._declare_block(instance_name, 'in', array=array)
 
     @classmethod
-    def declare_output_block(cls):
+    def declare_output_block(cls, array=None):
         instance_name = snake_case(cls.instance_name())
-        return cls._declare_block(instance_name, 'out')
+        return cls._declare_block(instance_name, 'out', array=array)
 
     @classmethod
     def block_name(cls):
@@ -86,15 +94,18 @@ class ShaderInterface(object):
 
 class UniformBlock(ShaderInterface):
     @classmethod
-    def declare_input_block(cls, instance_name):
-        return cls._declare_block(instance_name, 'uniform')
+    def declare_input_block(cls, instance_name, array=None):
+        return cls._declare_block(instance_name, 'uniform', array=array)
 
 
 class AttributeBlock(ShaderInterface):
     # For whatever reason GLSL doesn't allow attributes to be
     # aggregated into an interface block
     @classmethod
-    def declare_input_block(cls, instance_name=None):
+    def declare_input_block(cls, instance_name=None, array=None):
+        if array is not None:
+            raise NotImplementedError('attribute arrays not implemented')
+
         location = 0
         for member in cls._get_vars():
             # TODO(nicholasbishop): correctly handle type size when
