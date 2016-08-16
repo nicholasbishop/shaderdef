@@ -8,11 +8,11 @@ from shaderdef.ast_util import (make_assign,
                                 remove_function_parameters,
                                 remove_function_return_type,
                                 rename_function)
-from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
 from shaderdef.interface import AttributeBlock
 from shaderdef.lift_attributes import lift_attributes
+from shaderdef.rename_ast_nodes import rename_ast_nodes
 from shaderdef.rewrite_output import rewrite_return_as_assignments
 from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
@@ -109,16 +109,9 @@ class Stage(object):
 
     @staticmethod
     def rename_gl_builtins(ast_root):
-        store_names = {
+        return rename_ast_nodes(ast_root, {
             'gl_position': 'gl_Position',
-        }
-        call_names = {
-            'emit_vert': 'EmitVertex',
-        }
-        return rename_attributes(
-            ast_root,
-            store_names=store_names,
-            call_names=call_names)
+        })
 
     @property
     def glsl(self):
@@ -160,13 +153,13 @@ class Stage(object):
         remove_function_parameters(ast_root)
         remove_function_return_type(ast_root)
 
-        ast_root = self.rename_gl_builtins(ast_root)
         ast_root = rewrite_return_as_assignments(ast_root, self._return_type)
         ast_root = lift_attributes(ast_root, [
             param_name
             for param_name, param_type in self._params.items()
             if issubclass(param_type, AttributeBlock)
         ])
+        ast_root = self.rename_gl_builtins(ast_root)
 
         if self._return_type is not None:
             lines += self._return_type.declare_output_block()
