@@ -3,10 +3,8 @@
 import ast
 from unittest import TestCase
 
-from shaderdef.ast_util import (get_function_parameters, parse_source,
-                                remove_function_parameters)
+from shaderdef.ast_util import parse_source, remove_function_parameters
 from shaderdef.attr_rename import rename_attributes
-from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
 from shaderdef.unselfify import unselfify
 from test.util import AstTestCase
@@ -85,25 +83,6 @@ class TestAttrRename(AstTestCase):
         self.assertEqual(root, expected)
 
 
-class TestFindDeps(TestCase):
-    def test_find_input(self):
-        deps = find_deps(ast.parse('var = self.value'))
-        self.assertEqual(deps.inputs, set(['value']))
-
-    def test_find_output(self):
-        deps = find_deps(ast.parse('self.var = value'))
-        self.assertEqual(deps.outputs, set(['var']))
-
-    def test_find_call(self):
-        deps = find_deps(ast.parse('self.myfunc()'))
-        self.assertEqual(deps.calls, set(['myfunc']))
-
-    def test_input_in_call(self):
-        deps = find_deps(ast.parse('self.myfunc(self.value)'))
-        self.assertEqual(deps.calls, set(['myfunc']))
-        self.assertEqual(deps.inputs, set(['value']))
-
-
 class TestRemoveFunctionParameters(AstTestCase):
     def setUp(self):
         self.root = parse_source(SimpleClass)
@@ -116,17 +95,3 @@ class TestRemoveFunctionParameters(AstTestCase):
         expected = find_function(root, 'method_with_params')
 
         self.assertEqual(actual, expected)
-
-
-class TestGetFunctionParameters(TestCase):
-    def setUp(self):
-        self.root = parse_source(SimpleClass)
-
-    def test_params_and_types(self):
-        func = find_function(self.root, 'method_with_params')
-
-        params = get_function_parameters(func)
-        self.assertEqual(params, [('self', None), ('thing', 'int')])
-
-        params = get_function_parameters(func, include_self=False)
-        self.assertEqual(params, [('thing', 'int')])

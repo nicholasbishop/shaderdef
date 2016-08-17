@@ -4,22 +4,6 @@ from typing import (Generic, SupportsAbs, SupportsInt, SupportsFloat,
 from shaderdef.equality import EqualityMixin
 
 
-class FragOutput(EqualityMixin):
-    def __init__(self, gtype):
-        self.gtype = gtype
-
-    def __repr__(self):
-        return 'FragOutput({})'.format(self.gtype)
-
-    def glsl_decl(self, name):
-        return 'out {} {};'.format(self.gtype.__name__, name)
-
-
-class BuiltinType(object):
-    def __init__(self, *args):
-        pass
-
-
 class GlslType(SupportsAbs, SupportsInt, SupportsFloat):
     def __init__(self, *args, **kwargs):
         self.args = args

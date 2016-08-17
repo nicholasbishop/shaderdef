@@ -1,14 +1,9 @@
-from ast import fix_missing_locations
 from typing import Iterator, Sequence, get_type_hints
 
-from shaderdef.ast_util import (make_assign,
-                                make_self_attr_load,
-                                make_self_attr_store,
-                                parse_source,
+from shaderdef.ast_util import (parse_source,
                                 remove_function_parameters,
                                 remove_function_return_type,
                                 rename_function)
-from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
 from shaderdef.interface import AttributeBlock, FragmentShaderOutputBlock
 from shaderdef.lift_attributes import lift_attributes
@@ -46,50 +41,6 @@ class Stage(object):
         self._params = get_type_hints(func)
         self._params.pop('return', None)
         self._return_type = get_output_interface(func)
-
-    def find_deps(self):
-        return find_deps(self.ast_root)
-
-    def provide_deps(self, next_stage):
-        for dep in next_stage.find_deps().inputs:
-            if dep not in self.find_deps().outputs:
-                dst = make_self_attr_store(dep)
-                src = make_self_attr_load(dep)
-                assign = make_assign(dst, src)
-                self.ast_root.body.append(assign)
-
-        fix_missing_locations(self.ast_root)
-
-    def required_uniforms(self, all_uniforms):
-        for link in self.find_deps().inputs:
-            unif = all_uniforms.get(link)
-            if unif is not None:
-                yield link, unif
-
-    def load_names(self, external_links):
-        names = {}
-        for link in self.find_deps().inputs:
-            if link not in external_links.uniforms:
-                names[link] = self.input_prefix + link
-        return names
-
-    # TODO(nicholasbishop): de-dup
-    def store_names(self, external_links):
-        names = {}
-        for link in self.find_deps().outputs:
-            # Don't prefix uniforms, external outputs, or builtins
-            if link not in external_links.uniforms and \
-               link not in external_links.frag_outputs and \
-               not link.startswith('gl_'):
-                names[link] = self.output_prefix + link
-        return names
-
-    def declare_frag_outputs(self, lines, external_links):
-        # TODO
-        if self.name != 'frag_shader':
-            return
-        for link, fout in external_links.frag_outputs.items():
-            lines.append(fout.glsl_decl(link))
 
     def declare_inputs(self, lines):
         for name, param_type in self._params.items():
@@ -146,7 +97,6 @@ class Stage(object):
         if self._return_type is not None:
             if issubclass(self._return_type, FragmentShaderOutputBlock):
                 yield self._return_type.instance_name()
-
 
     def to_glsl(self, library):
         lines = []
