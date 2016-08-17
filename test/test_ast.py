@@ -6,25 +6,7 @@ from unittest import TestCase
 from shaderdef.ast_util import parse_source, remove_function_parameters
 from shaderdef.attr_rename import rename_attributes
 from shaderdef.find_function import find_function
-from shaderdef.unselfify import unselfify
 from test.util import AstTestCase
-
-
-class TestUnselfify(AstTestCase):
-    def test_load(self):
-        root = unselfify(ast.parse('var = self.value'))
-        expected = ast.parse('var = value')
-        self.assertEqual(root, expected)
-
-    def test_store(self):
-        root = unselfify(ast.parse('self.var = value'))
-        expected = ast.parse('var = value')
-        self.assertEqual(root, expected)
-
-    def test_nonself(self):
-        root = unselfify(ast.parse('foo.var = value'))
-        expected = ast.parse('foo.var = value')
-        self.assertEqual(root, expected)
 
 
 class SimpleClass(object):

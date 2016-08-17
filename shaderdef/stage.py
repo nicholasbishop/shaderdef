@@ -9,7 +9,6 @@ from shaderdef.interface import AttributeBlock, FragmentShaderOutputBlock
 from shaderdef.lift_attributes import lift_attributes
 from shaderdef.rename_ast_nodes import rename_gl_builtins
 from shaderdef.rewrite_output import rewrite_return_as_assignments
-from shaderdef.unselfify import unselfify
 from shaderdef.py_to_glsl import py_to_glsl
 
 
@@ -120,6 +119,5 @@ class Stage(object):
         if self._return_type is not None:
             lines += self._return_type.declare_output_block()
 
-        ast_root = unselfify(ast_root)
         lines += py_to_glsl(ast_root)
         return '\n'.join(lines)
