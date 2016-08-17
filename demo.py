@@ -89,17 +89,17 @@ def geom_shader(view: View, gl_in: Sequence[GlGsIn],
     yield GsOut(gl_position=gl_in[0].gl_position,
                 altitudes=vec3(altitudes[0], 0, 0),
                 normal=vs_out[0].normal,
-                color=vs_out[0].normal)
+                color=vs_out[0].color)
 
     yield GsOut(gl_position=gl_in[1].gl_position,
                 altitudes=vec3(0, altitudes[1], 0),
                 normal=vs_out[1].normal,
-                color=vs_out[1].normal)
+                color=vs_out[1].color)
 
     yield GsOut(gl_position=gl_in[2].gl_position,
                 altitudes=vec3(0, 0, altitudes[2]),
                 normal=vs_out[2].normal,
-                color=vs_out[2].normal)
+                color=vs_out[2].color)
 
     end_primitive()
 
