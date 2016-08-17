@@ -10,7 +10,7 @@ from shaderdef.ast_util import (make_assign,
                                 rename_function)
 from shaderdef.find_deps import find_deps
 from shaderdef.find_function import find_function
-from shaderdef.interface import AttributeBlock
+from shaderdef.interface import AttributeBlock, FragmentShaderOutputBlock
 from shaderdef.lift_attributes import lift_attributes
 from shaderdef.rename_ast_nodes import rename_gl_builtins
 from shaderdef.rewrite_output import rewrite_return_as_assignments
@@ -135,6 +135,18 @@ class Stage(object):
             yield 'layout({}, max_vertices = {}) out;'.format(output_primitive,
                                                               max_vertices)
 
+    def attributes_to_lift(self):
+        # Attributes aren't allowed in an interface block
+        for param_name, param_type in self._params.items():
+            if issubclass(param_type, AttributeBlock):
+                yield param_name
+
+        # Same for fragment shader outputs. TODO(nicholasbishop): we
+        # could also do this more directly during rewrite_return...
+        if issubclass(self._return_type, FragmentShaderOutputBlock):
+            yield self._return_type.instance_name()
+
+
     def to_glsl(self, library):
         lines = []
         lines.append('#version 330 core')
@@ -151,11 +163,7 @@ class Stage(object):
         remove_function_return_type(ast_root)
 
         ast_root = rewrite_return_as_assignments(ast_root, self._return_type)
-        ast_root = lift_attributes(ast_root, [
-            param_name
-            for param_name, param_type in self._params.items()
-            if issubclass(param_type, AttributeBlock)
-        ])
+        ast_root = lift_attributes(ast_root, set(self.attributes_to_lift()))
         ast_root = rename_gl_builtins(ast_root)
 
         if self._return_type is not None:

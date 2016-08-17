@@ -3,6 +3,13 @@ def _gdecl(*parts):
     return '{};'.format(' '.join(not_none))
 
 
+def location_str(location):
+    if location is None:
+        return None
+    else:
+        return 'layout(location={})'.format(int(location))
+
+
 class GlslVar(object):
     """Represent a GLSL variable declaration (or struct member)."""
     def __init__(self, name, gtype, interpolation=None):
@@ -17,13 +24,9 @@ class GlslVar(object):
         return _gdecl('uniform', self.gtype, self.name)
 
     def declare_attribute(self, location=None):
-        if location is None:
-            location_str = None
-        else:
-            location_str = 'layout(location={})'.format(int(location))
+        return _gdecl(location_str(location), self.interpolation,
+                      'in', self.gtype, self.name)
 
-        return _gdecl(location_str, self.interpolation, 'in', self.gtype,
-                      self.name)
-
-    def declare_output(self):
-        return _gdecl(self.interpolation, 'out', self.gtype, self.name)
+    def declare_output(self, location=None):
+        return _gdecl(self.interpolation, location_str(location),
+                      'out', self.gtype, self.name)

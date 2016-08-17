@@ -114,6 +114,22 @@ class AttributeBlock(ShaderInterface):
             location += 1
 
 
+class FragmentShaderOutputBlock(ShaderInterface):
+    # As with attributes, blocks aren't allowed here
+    @classmethod
+    def declare_output_block(cls, array=None):
+        if array is not None:
+            raise NotImplementedError('fs output arrays not implemented')
+
+        # TODO(nicholasbishop): dedup
+        location = 0
+        for member in cls._get_vars():
+            # TODO(nicholasbishop): correctly handle type size when
+            # incrementing location
+            yield member.declare_output(location)
+            location += 1
+
+
 # TODO, builtin
 class GlGsIn(ShaderInterface):
     gl_position = vec4()

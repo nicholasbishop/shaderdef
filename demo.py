@@ -2,8 +2,8 @@
 
 from typing import Iterator, Sequence
 
-from shaderdef import (AttributeBlock, GlGsIn, ShaderDef,
-                       ShaderInterface, UniformBlock)
+from shaderdef import (AttributeBlock, FragmentShaderOutputBlock,
+                       GlGsIn, ShaderDef, ShaderInterface, UniformBlock)
 from shaderdef.glsl_types import (Array3, triangles, triangle_strip,
                                   mat4, noperspective, vec2, vec3,
                                   vec4)
@@ -37,8 +37,8 @@ class GsOut(ShaderInterface):
     color = vec4()
 
 
-class FsOut(ShaderInterface):
-    color = vec4()
+class FsOut(FragmentShaderOutputBlock):
+    fs_color = vec4()
 
 
 def perspective_projection(projection: mat4, camera: mat4,
@@ -129,7 +129,7 @@ def frag_shader(gs_out: GsOut) -> FsOut:
         fac = float(1.0 / rep)
         color[0] = pow(mod(gs_out.color[0], rep) * fac, 4)
 
-    return FsOut(color=color)
+    return FsOut(fs_color=color)
 
 
 def main():
