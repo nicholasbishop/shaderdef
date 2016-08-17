@@ -143,8 +143,9 @@ class Stage(object):
 
         # Same for fragment shader outputs. TODO(nicholasbishop): we
         # could also do this more directly during rewrite_return...
-        if issubclass(self._return_type, FragmentShaderOutputBlock):
-            yield self._return_type.instance_name()
+        if self._return_type is not None:
+            if issubclass(self._return_type, FragmentShaderOutputBlock):
+                yield self._return_type.instance_name()
 
 
     def to_glsl(self, library):
