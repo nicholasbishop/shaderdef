@@ -36,6 +36,7 @@ class TestUniforms(TestCase):
         ])
 
     def test_lift(self):
+        # pylint: disable=unused-variable
         class MyUniforms(UniformBlock):
             xyz = int()
         def func(param: MyUniforms):
