@@ -34,3 +34,13 @@ class TestUniforms(TestCase):
         self.assertEqual(list(stage.get_uniforms()), [
             GlslVar('xyz', 'int')
         ])
+
+    def test_lift(self):
+        class MyUniforms(UniformBlock):
+            xyz = int()
+        def func(param: MyUniforms):
+            abc = param.xyz
+        stage = Stage(func)
+        stage.translate([])
+        self.assertIn('xyz', stage.glsl)
+        self.assertNotIn('param', stage.glsl)

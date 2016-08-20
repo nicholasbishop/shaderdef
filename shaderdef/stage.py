@@ -92,6 +92,12 @@ class Stage(object):
                                                               max_vertices)
 
     def attributes_to_lift(self):
+        # Uniforms can use an interface block but for now we're not
+        # doing that
+        for param_name, param_type in self._params.items():
+            if issubclass(param_type, UniformBlock):
+                yield param_name
+
         # Attributes aren't allowed in an interface block
         for param_name, param_type in self._params.items():
             if issubclass(param_type, AttributeBlock):
