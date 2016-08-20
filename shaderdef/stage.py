@@ -5,7 +5,8 @@ from shaderdef.ast_util import (parse_source,
                                 remove_function_return_type,
                                 rename_function)
 from shaderdef.find_function import find_function
-from shaderdef.interface import AttributeBlock, FragmentShaderOutputBlock
+from shaderdef.interface import (AttributeBlock, FragmentShaderOutputBlock,
+                                 UniformBlock)
 from shaderdef.lift_attributes import lift_attributes
 from shaderdef.rename_ast_nodes import rename_gl_builtins
 from shaderdef.rewrite_output import rewrite_return_as_assignments
@@ -51,6 +52,11 @@ class Stage(object):
                 array = True
             lines += param_type.declare_input_block(instance_name=name,
                                                     array=array)
+
+    def get_uniforms(self):
+        for param_type in self._params.values():
+            if issubclass(param_type, UniformBlock):
+                yield from param_type.get_vars()
 
     @staticmethod
     def define_aux_functions(lines, library):

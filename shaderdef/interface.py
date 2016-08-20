@@ -47,7 +47,7 @@ class ShaderInterface(object):
         pass
 
     @classmethod
-    def _get_vars(cls):
+    def get_vars(cls):
         # ast is used here instead of inspecting the attributes
         # directly because currently most of the types are just
         # aliases of GlslType rather than subclasses
@@ -59,6 +59,9 @@ class ShaderInterface(object):
                 # Ignore builtins
                 if name.startswith('gl_'):
                     continue
+                if not isinstance(item.value, ast.Call):
+                    raise TypeError('member is not a constructor: {}'
+                                    .format(ast.dump(item)))
                 gtype = item.value.func.id
                 interp = None
                 if len(item.value.args) == 1:
@@ -67,7 +70,7 @@ class ShaderInterface(object):
 
     @classmethod
     def _declare_block(cls, instance_name, block_type, array=None):
-        members = list(cls._get_vars())
+        members = list(cls.get_vars())
         if len(members) == 0:
             return []
         else:
@@ -95,7 +98,11 @@ class ShaderInterface(object):
 class UniformBlock(ShaderInterface):
     @classmethod
     def declare_input_block(cls, instance_name, array=None):
-        return cls._declare_block(instance_name, 'uniform', array=array)
+        if array is not None:
+            raise NotImplementedError('uniform arrays not implemented')
+
+        for member in cls.get_vars():
+            yield member.declare_uniform()
 
 
 class AttributeBlock(ShaderInterface):
@@ -107,7 +114,7 @@ class AttributeBlock(ShaderInterface):
             raise NotImplementedError('attribute arrays not implemented')
 
         location = 0
-        for member in cls._get_vars():
+        for member in cls.get_vars():
             # TODO(nicholasbishop): correctly handle type size when
             # incrementing location
             yield member.declare_attribute(location)
@@ -123,7 +130,7 @@ class FragmentShaderOutputBlock(ShaderInterface):
 
         # TODO(nicholasbishop): dedup
         location = 0
-        for member in cls._get_vars():
+        for member in cls.get_vars():
             # TODO(nicholasbishop): correctly handle type size when
             # incrementing location
             yield member.declare_output(location)

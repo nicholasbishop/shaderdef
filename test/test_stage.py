@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from shaderdef.glsl_var import GlslVar
+from shaderdef.interface import UniformBlock
 from shaderdef.stage import Stage, make_prefix
 
 class TestMakePrefix(TestCase):
@@ -19,3 +21,16 @@ class TestAuxFunction(TestCase):
         stage = Stage(simple_stage)
         code = stage.to_glsl([aux])
         self.assertIn('void aux() {', code)
+
+
+class TestUniforms(TestCase):
+    def test_simple(self):
+        # pylint: disable=unused-argument
+        class MyUniforms(UniformBlock):
+            xyz = int()
+        def func(unif: MyUniforms):
+            pass
+        stage = Stage(func)
+        self.assertEqual(list(stage.get_uniforms()), [
+            GlslVar('xyz', 'int')
+        ])

@@ -17,6 +17,11 @@ class TestShaderInterface(TestCase):
             var = vec4()
 
         self.assertEqual(list(MyBlock2.declare_input_block('x')),
-                         ['uniform MyBlock2 {',
-                          '    vec4 var;',
-                          '} x;'])
+                         ['uniform vec4 var;'])
+
+    def test_invalid_type(self):
+        class MyBlock3(ShaderInterface):
+            # invalid, should be "var = vec4()"
+            var = vec4
+        with self.assertRaises(TypeError):
+            next(MyBlock3.get_vars())

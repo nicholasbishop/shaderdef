@@ -27,3 +27,14 @@ class ShaderDef(object):
     @property
     def frag_shader(self):
         return self._frag_shader.glsl
+
+    def get_uniforms(self):
+        uniforms = {}
+        stages = (self._vert_shader, self._geom_shader, self._frag_shader)
+        for stage in stages:
+            for var in stage.get_uniforms():
+                if var.name in uniforms and uniforms[var.name] != var:
+                    raise KeyError('duplicate uniform: {}'.format(var))
+                else:
+                    uniforms[var.name] = var
+        return uniforms.values()
