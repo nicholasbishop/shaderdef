@@ -11,6 +11,9 @@ setup(name='shaderdef',
       author='Nicholas Bishop',
       author_email='nicholasbishop@gmail.com',
       license='GNU General Public License v3 or later (GPLv3+)',
-      packages=['shaderdef', 'tools'],
+      packages=[
+          'shaderdef',
+          'tools',
+      ],
       test_suite='test',
       zip_safe=True)
