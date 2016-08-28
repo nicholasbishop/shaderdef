@@ -1,4 +1,4 @@
-from shaderdef.equality import EqualityMixin
+import attr
 
 def _gdecl(*parts):
     not_none = (part for part in parts if part is not None)
@@ -11,22 +11,13 @@ def location_str(location):
     else:
         return 'layout(location={})'.format(int(location))
 
-
-class GlslVar(EqualityMixin):
+@attr.s
+class GlslVar(object):
     """Represent a GLSL variable declaration (or struct member)."""
-    def __init__(self, name, gtype, interpolation=None):
-        self.name = name
-        self.gtype = gtype
-        self.interpolation = interpolation
 
-    def __hash__(self):
-        return hash((self.name, self.gtype, self.interpolation))
-
-    def __repr__(self):
-        parts = [self.name, self.gtype]
-        if self.interpolation is not None:
-            parts.append(self.interpolation)
-        return 'GlslVar({})'.format(' '.join(parts))
+    name = attr.ib()
+    gtype = attr.ib()
+    interpolation = attr.ib(default=None)
 
     def declare(self):
         return _gdecl(self.interpolation, self.gtype, self.name)

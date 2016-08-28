@@ -1,8 +1,8 @@
 import ast
 from typing import (Generic, SupportsAbs, SupportsInt, SupportsFloat,
                     TypeVar)
-from shaderdef.equality import EqualityMixin
 
+import attr
 
 class GlslType(SupportsAbs, SupportsInt, SupportsFloat):
     def __init__(self, *args, **kwargs):
@@ -86,18 +86,16 @@ Array15 = GlslArray
 Array16 = GlslArray
 
 
-class ArraySpec(EqualityMixin):
+@attr.s
+class ArraySpec(object):
     """Represents an array declaration.
 
     This type isn't currently intended to be used by client code
     directly, it's just a convenient form for internal use.
     """
-    def __init__(self, element_type, length):
-        self.element_type = element_type
-        self.length = length
 
-    def __repr__(self):
-        return 'ArraySpec({}, {})'.format(self.element_type, self.length)
+    element_type = attr.ib()
+    length = attr.ib()
 
     @classmethod
     def from_ast_node(cls, node):
