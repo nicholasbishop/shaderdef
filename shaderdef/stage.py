@@ -43,7 +43,7 @@ class Stage(object):
         self._return_type = get_output_interface(func)
 
     def declare_inputs(self, lines):
-        for name, param_type in self._params.items():
+        for name, param_type in sorted(self._params.items()):
             # TODO(nicholasbishop): dedup with return type
             origin = getattr(param_type, '__origin__', None)
             array = None
