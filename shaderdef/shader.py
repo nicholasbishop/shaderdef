@@ -1,6 +1,8 @@
+import attr
 from shaderdef.stage import Stage
 
 
+@attr.s(init=False)
 class ShaderDef(object):
     def __init__(self, vert_shader, geom_shader, frag_shader):
         self._vert_shader = Stage(vert_shader)
