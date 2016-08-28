@@ -16,4 +16,7 @@ setup(name='shaderdef',
           'tools',
       ],
       test_suite='test',
+      install_requires=[
+          'attrs >= 16.0.0',
+      ],
       zip_safe=True)
