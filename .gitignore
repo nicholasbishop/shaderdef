@@ -3,3 +3,4 @@ __pycache__
 shaderdef.egg-info/
 /dist/
 /venv
+docs/_build
