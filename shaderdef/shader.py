@@ -8,9 +8,14 @@ class ShaderDef(object):
         self._frag_shader = Stage(frag_shader)
         self._library = []
 
-    def add_function(self, func):
-        """Add a utility function to the shader program."""
-        self._library.append(func)
+    def add_function(self, function):
+        """Add a utility `function` to the shader program.
+
+        Each utility function is currently emitted in all shader
+        stages regardless of which stage or stages the function is
+        actually used in.
+        """
+        self._library.append(function)
 
     def translate(self):
         self._vert_shader.translate(self._library)
