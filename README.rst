@@ -11,6 +11,11 @@ License
 
 GNU GPLv3+
 
+Documentation
+=============
+
+https://shaderdef.readthedocs.io
+
 Implementation
 ==============
 
