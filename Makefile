@@ -1,4 +1,10 @@
-.PHONY: lint release test
+.PHONY: doc lint release test
+
+doc:
+	cd docs && make html
+	@echo -e "\noutput:"
+	@realpath docs/_build/html/index.html
+
 
 lint:
 	python3 -m pylint -rn shaderdef test tools *.py
