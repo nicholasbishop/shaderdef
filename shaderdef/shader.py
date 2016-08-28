@@ -9,6 +9,7 @@ class ShaderDef(object):
         self._library = []
 
     def add_function(self, func):
+        """Add a utility function to the shader program."""
         self._library.append(func)
 
     def translate(self):
@@ -18,14 +19,17 @@ class ShaderDef(object):
 
     @property
     def vert_shader(self):
+        """Get the GLSL code for the vertex shader."""
         return self._vert_shader.glsl
 
     @property
     def geom_shader(self):
+        """Get the GLSL code for the geometry shader."""
         return self._geom_shader.glsl
 
     @property
     def frag_shader(self):
+        """Get the GLSL code for the fragment shader."""
         return self._frag_shader.glsl
 
     def get_uniforms(self):
