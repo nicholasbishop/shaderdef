@@ -1,5 +1,24 @@
 #! /usr/bin/env python3
 
+"""
+>>> sdef = ShaderDef(vert_shader=vert_shader, frag_shader=frag_shader)
+>>> sdef.translate()
+
+>>> print(sdef.vert_shader)
+#version 330 core
+layout(location=0) in vec2 position;
+void main() {
+    gl_Position = vec4(-attr.position.x, attr.position.y, 1.0, 1.0);
+}
+
+>>> print(sdef.frag_shader)
+#version 330 core
+layout(location=0) out vec4 color;
+void main() {
+    color = vec4(1.0, 0.0, 0.0, 1.0);
+}
+"""
+
 from shaderdef import (AttributeBlock, FragmentShaderOutputBlock,
                        ShaderDef, ShaderInterface)
 
