@@ -2,7 +2,7 @@ from subprocess import check_output
 import sys
 from unittest import TestCase
 
-EXPECTED="""#version 330 core
+EXPECTED = """#version 330 core
 layout(location=0) in vec3 vert_loc;
 layout(location=1) in vec3 vert_nor;
 layout(location=2) in vec4 vert_col;
@@ -131,5 +131,4 @@ class TestDemo(TestCase):
         accidentally breaking the demo.
         """
         cmd = (sys.executable, '-m', 'demo')
-        self.maxDiff = 5000
         self.assertEqual(check_output(cmd).decode(), EXPECTED)
