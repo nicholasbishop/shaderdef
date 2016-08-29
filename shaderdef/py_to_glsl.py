@@ -125,11 +125,14 @@ class AstToGlsl(ast.NodeVisitor):
                                         self.visit(target).one(),
                                         self.visit(node.value).one()))
 
-    def visit_Assign(self, node):
+    def visit_NoDeclAssign(self, node):
+        return self.visit_Assign(node, allow_decl=False)
+
+    def visit_Assign(self, node, allow_decl=True):
         if len(node.targets) != 1:
             raise ValueError('multiple assignment targets not allowed', node)
         target = node.targets[0]
-        if self.is_var_decl(node):
+        if allow_decl and self.is_var_decl(node):
             return self.make_var_decl(node)
         adecl = self.get_array_decl(node)
         if adecl is not None:

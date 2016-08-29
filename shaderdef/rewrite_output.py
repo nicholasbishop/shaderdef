@@ -1,7 +1,19 @@
 import ast
 
+
+class NoDeclAssign(ast.Assign):
+    """Mark an assignment as one that doesn't need to be declared.
+
+    For example, `return Output(pos=vec2(0, 1))` should have GLSL output
+       pos = vec2(0, 1);
+    instead of
+       vec2 pos = vec2(0, 1);
+    """
+    pass
+
+
 def kwargs_as_assignments(call_node, parent):
-    """Yield Assign nodes from kwargs in a Call node."""
+    """Yield NoDeclAssign nodes from kwargs in a Call node."""
     if not isinstance(call_node, ast.Call):
         raise TypeError('node must be an ast.Call')
 
@@ -19,7 +31,7 @@ def kwargs_as_assignments(call_node, parent):
             target = [ast.Attribute(value=parent, attr=keyword.arg,
                                     ctx=ast.Store())]
 
-        yield ast.Assign(targets=target, value=keyword.value)
+        yield NoDeclAssign(targets=target, value=keyword.value)
 
 
 class _RewriteReturn(ast.NodeTransformer):
