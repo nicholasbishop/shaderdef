@@ -123,24 +123,6 @@ void main() {
 }
 """
 
-SIMPLE_DEMO_EXPECTED = """
-vertex shader:
---------------
-#version 330 core
-layout(location=0) in vec2 position;
-void main() {
-    gl_Position = vec4(-attr.position.x, attr.position.y, 1.0, 1.0);
-}
-
-fragment shader:
-----------------
-#version 330 core
-layout(location=0) out vec4 color;
-void main() {
-    color = vec4(1.0, 0.0, 0.0, 1.0);
-}
-"""
-
 class TestDemo(TestCase):
     def test_demo_output(self):
         """Test to ensure that the demo output doesn't change.
@@ -150,8 +132,3 @@ class TestDemo(TestCase):
         """
         cmd = (sys.executable, '-m', 'demo')
         self.assertEqual(check_output(cmd).decode(), DEMO_EXPECTED)
-
-    def test_simple_demo_output(self):
-        """Test for simple_demo."""
-        cmd = (sys.executable, '-m', 'simple_demo')
-        self.assertEqual(check_output(cmd).decode(), SIMPLE_DEMO_EXPECTED)
