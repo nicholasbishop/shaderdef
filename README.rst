@@ -6,6 +6,9 @@ Transform Python code into GLSL shaders.
 
 See demo.py for a quick example of how to use the library.
 
+This module does not currently provide any sort of shader execution
+(although that would be a fun addition). It just outputs GLSL code.
+
 License
 =======
 
