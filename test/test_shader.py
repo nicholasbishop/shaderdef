@@ -26,8 +26,8 @@ class MyMaterial(object):
 class TestShader(TestCase):
     def test_simple(self):
         shader = ShaderDef(MyMaterial.vert_shader,
-                           MyMaterial.geom_shader,
-                           MyMaterial.frag_shader)
+                           MyMaterial.frag_shader,
+                           MyMaterial.geom_shader)
         shader.translate()
         self.assertEqual(deindent(shader.vert_shader),
                          '#version 330 core'
