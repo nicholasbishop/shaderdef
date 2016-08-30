@@ -5,9 +5,6 @@ Transform Python code into GLSL shaders.
 
 Website: https://github.com/nicholasbishop/shaderdef
 
-.. toctree::
-   :maxdepth: 2
-
 
 Example program
 ---------------
