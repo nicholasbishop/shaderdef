@@ -41,7 +41,7 @@ def frag_shader() -> FsOut:
 def print_shaders():
     sdef = ShaderDef(vert_shader=vert_shader, frag_shader=frag_shader)
     sdef.translate()
-    
+
     print('\nvertex shader:')
     print('--------------')
     print(sdef.vert_shader)
