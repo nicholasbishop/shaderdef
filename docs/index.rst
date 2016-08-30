@@ -1,11 +1,16 @@
 shaderdef
 =========
 
+Transform Python code into GLSL shaders.
+
+Website: https://github.com/nicholasbishop/shaderdef
+
 .. toctree::
    :maxdepth: 2
 
 
-Example program:
+Example program
+---------------
 
 .. include:: ../simple_demo.py
    :code: python
